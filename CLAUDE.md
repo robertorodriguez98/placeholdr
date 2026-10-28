@@ -4,10 +4,66 @@ Generador de **placeholders imprimibles (PDF)** para un binder de Pokémon TCG: 
 63×88 mm (tamaño carta TCG), 9 por página A4 (3×3) con líneas de corte, pensadas para meter
 en los bolsillos del binder mientras falta la carta real.
 
-Todo el código vive hoy en un único script: `pokebinder.py` (~900 líneas, Python 3).
+Hay dos implementaciones:
+
+- **`web/` — la versión principal** (en desarrollo por fases). Es una aplicación web en
+  TypeScript + Vite, sin framework, que se ejecuta **entera en el navegador**: descargas,
+  recortes, vista previa y PDF. El servidor solo sirve ficheros estáticos.
+- **`pokebinder.py` — CLI en Python, CONGELADO** desde 2026-10-28. Sigue funcionando, pero
+  no recibe cambios. Todo lo nuevo va a la web. El resto de este documento, salvo la sección
+  "Aplicación web", describe el CLI, que sirve de referencia para portar el diseño.
+
 El usuario (Roberto) habla en español; la UI, los mensajes de consola y los comentarios están
 en español. Prefiere instrucciones directas, comando a comando, y que se explique el porqué
-cuando aporta.
+cuando aporta. Trabajamos con una rama y un pull request por cambio
+(`gh pr create` / `gh pr merge --merge --delete-branch`).
+
+---
+
+## Aplicación web (`web/`)
+
+### Plan por fases (una rama y un PR cada una)
+1. ✅ Esqueleto, capa de datos y controles (desplegable de ediciones por serie, filtros,
+   modo Pokédex), con una lista provisional de cartas.
+2. Dibujo de cada carta como SVG de 63×88 mm y vista previa paginada (3×3 por hoja, igual
+   que el PDF).
+3. Bustos (WikiDex + `bustos.json` de la raíz), iconos de objeto y modo B/N, todo con
+   `<canvas>`.
+4. Exportar a PDF en el navegador con `jsPDF` + `svg2pdf.js`, a partir de los mismos SVG que
+   la vista previa, para que coincida exactamente con lo impreso.
+5. Dockerfile con `nginx:alpine` que sirve `dist/` y hace de proxy con caché para Showdown
+   (`/proxy/showdown/`), la única fuente sin CORS.
+
+### Desarrollo
+No hay Node instalado: todo se ejecuta en un contenedor `node:22-alpine`. En este equipo,
+Docker necesita un `DOCKER_CONFIG` temporal porque falta `docker-credential-desktop` (ver la
+memoria del usuario).
+```bash
+# servidor de desarrollo en http://localhost:5173 (con recarga en caliente)
+docker run -d --rm --name pokebinder-dev -p 5173:5173 -v "<repo>:/repo" -w /repo/web node:22-alpine npm run dev
+# compilar (tsc + vite build -> web/dist)
+docker run --rm -v "<repo>/web:/app" -w /app node:22-alpine sh -c "npm install && npm run build"
+```
+Para probar la interfaz se puede usar la extensión Claude in Chrome. El usuario navega con
+Firefox, pero instaló Chrome solo para las pruebas.
+
+### Estructura
+- `src/config.ts`: mapas portados del CLI (`TYPE_COLORS`, `ITEM_KEYWORDS`…) y tamaños en mm.
+- `src/data/fetch.ts`: descargas con **Cache Storage**, el equivalente a `.pokecache/`.
+- `src/data/sources.ts`: URLs de las fuentes.
+- `src/data/tcg.ts`: ediciones, cartas, selección (`--only`, `--main-only`) y traducciones.
+- `src/data/species.ts`: Pokédex (CSV de PokeAPI), selección por generación, rango o números.
+- `src/main.ts`: estado de la UI (guardado en `localStorage`) y enlace con los controles.
+
+### Diferencias con el CLI
+- **Traducciones:** se usa la API REST de TCGdex (`api.tcgdex.net/v2`), no los ficheros
+  `.ts`. Son dos llamadas por edición: `/en/sets` para casarla por nombre inglés
+  (`me5` → `me05`) y `/{lang}/sets/{id}` para los nombres. No se casa por código PTCGO,
+  porque `30C` está repetido en dos ediciones.
+- **Idiomas:** es, en, fr, de e it. Se dejan fuera ja, ko y zh por el problema de fuentes en
+  el PDF (punto 5 de "Pendiente").
+- **CORS** (verificado): pokemon-tcg-data, PokeAPI, TCGdex, la API de WikiDex y su CDN
+  permiten `*`. Showdown no, así que pasa por el proxy de nginx.
 
 ---
 
