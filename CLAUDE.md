@@ -100,7 +100,10 @@ Por orden de aparición en el fichero:
   - `person_names`: devuelve el personaje en inglés y en español; en ES saca lo que va tras el último `" de "`.
   - `_load`: busca en la carpeta local `retratos/`, después en WikiDex y por último en Showdown.
   - `crop_bust`: detecta la silueta por el alfa (si no hay transparencia, quita el fondo blanco), calcula el centro de la cabeza con el centroide de la franja superior del 12 % y hace un recorte cuadrado de lado `BUST_FRACTION × alto`.
-  - `--bust-map` acepta un título de página o una URL directa.
+  - `--bust-map` (por defecto `bustos.json` si existe) acepta un título de página, una URL
+    directa o un objeto `{"page"|"url", "dx", "dy", "zoom"}`. `dx` y `dy` desplazan el encuadre
+    en fracciones de su lado (negativo = izquierda/arriba) y `zoom > 1` acerca. El ajuste se
+    aplica a la imagen venga de donde venga (local, WikiDex o Showdown).
 - **Primitivas de dibujo:** `fit_font`, `pill` (en B/N, cualquier pastilla que no sea negra pasa a contorno), `mix`, `card_frame`, `clip_inner`, `title`, `star`, `rarity_mark`, `icon` (iconos vectoriales de respaldo), `energy_orb`, `item_icon`, `bust_medallion`, `stripes`.
 - **Cartas:** `draw_pokemon`, `draw_trainer`, `draw_energy`.
 - **Maquetación:** `draw_cutlines` y `render(items, …)`. `items` es una lista de *callables* `draw(c, x, y)`, así que `render` no sabe nada del tipo de carta.
@@ -156,8 +159,9 @@ Con `--bw`, el nombre por defecto del PDF lleva el sufijo `_bw`.
    descentrado. **Misty** (inclinada hacia delante) sale con la cara pegada al borde izquierdo
    y la barbilla cortada, porque la coleta arrastra el centroide de la franja superior. Se
    probó detección de piel por color (RGB y HSV) y **no sirve**: confunde el pelo naranja o
-   rubio y los brazos con la cara. Opciones pendientes: offset manual por personaje en
-   `--bust-map` o un detector anime-face de OpenCV.
+   rubio y los brazos con la cara. **Resuelto con ajuste manual** en `bustos.json`
+   (Misty `dx -0.2, dy 0.05`; Gladio `dx 0.06, zoom 0.92`). Para personajes nuevos que encuadren
+   mal se añade su entrada. Si llegan a ser muchos, valorar un detector anime-face de OpenCV.
 5. Helvetica (fuente estándar de reportlab) usa WinAnsi: **ja/ko/zh no se renderizan**. Para
    esos idiomas habría que registrar una TTF (Noto Sans CJK).
 6. El tipo de una Energía se deduce buscando la palabra del tipo en el nombre inglés, lo cual
@@ -190,22 +194,20 @@ Con `--bw`, el nombre por defecto del PDF lleva el sufijo `_bw`.
    - funciones puras: `trainer_slug`, `person_names`, `fmt_number`, `_ts_field`, `ItemIcons.resolve` y `crop_bust` con imágenes sintéticas;
    - HTTP mockeado (`responses` o `requests-mock`);
    - un test de humo que genere un PDF con un set pequeño desde fixtures.
-3. Ajustar el encuadre de los bustos que fallan (punto 4 de "Pendiente"). Los puntos 1 y 2 ya
-   están verificados.
-4. Mover `ITEM_KEYWORDS`, `SUPPORTER_POOL` y los demás mapas a un YAML o JSON editable.
-5. Ideas que el usuario podría querer:
+3. Mover `ITEM_KEYWORDS`, `SUPPORTER_POOL` y los demás mapas a un YAML o JSON editable.
+4. Ideas que el usuario podría querer:
    - modo "checklist": marcar qué cartas tiene ya, leyendo un CSV, para imprimir solo las que faltan;
    - orden por página de binder de 9 o de 12 bolsillos;
    - márgenes de impresión configurables.
 
 ---
 
-## Ficheros de usuario (fuera del repo)
+## Ficheros de usuario
 
 - `retratos/` — ilustraciones de entrenadores puestas a mano, con el nombre `{slug}.png`.
 - `iconos.json` — `{"Gwynn": "town-map", "084": "zap-plate"}` (clave: carta en/es o número).
-- `bustos.json` — `{"Misty": "Misty (videojuegos)", "Inma": "https://…/Inma.png"}`.
+- `bustos.json` — **sí está en el repo** (ajustes de encuadre compartidos): `{"Misty": {"dx": -0.2, "dy": 0.05}, "Inma": "https://…/Inma.png"}`.
 - `.pokecache/` — caché; se puede borrar sin riesgo. Las subcarpetas `trainers/` y
   `tcg_cards/` son las que conviene borrar al cambiar mapas o en sets nuevos.
 
-Conviene añadir `.pokecache/`, `retratos/` y `*.pdf` al `.gitignore`.
+`.pokecache/`, `retratos/` y `*.pdf` están en `.gitignore`.
