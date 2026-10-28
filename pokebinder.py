@@ -2,6 +2,9 @@
 """
 pokebinder.py - Placeholders imprimibles (PDF) para un binder de Pokémon TCG.
 
+CONGELADO (2026-10-28): la versión principal es la aplicación web de web/. Este script
+sigue funcionando, pero ya no recibe cambios de diseño ni funciones nuevas.
+
 Dos modos:
   dex  -> por número de Pokédex / generación (datos de PokeAPI)
   set  -> por expansión del TCG (datos de PokemonTCG/pokemon-tcg-data),
