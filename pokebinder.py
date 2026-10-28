@@ -347,8 +347,21 @@ class TrainerBusts:
     def __init__(self, cache: Path, folder, online=True, overrides=None):
         self.cache, self.folder, self.online = cache, Path(folder), online
         # {carta (en/es) o personaje: "Título de página" o "https://.../imagen.png"}
-        self.over = {k.lower(): v for k, v in (overrides or {}).items()}
+        # o, para ajustar el encuadre, un objeto:
+        #   {"page": "Título" | "url": "https://...", "dx": -0.1, "dy": 0.05, "zoom": 1.2}
+        # dx/dy mueven el encuadre en fracciones de su lado (negativo = izquierda/arriba)
+        # y zoom > 1 acerca. Todo es opcional.
+        self.over = {}
+        for k, v in (overrides or {}).items():
+            self.over[k.lower()] = v if isinstance(v, dict) else {"url" if v.startswith("http") else "page": v}
         self._done = {}
+
+    def _entry(self, card):
+        """Entrada de --bust-map para la carta (por nombre de carta o de personaje), o {}."""
+        person_en, person_es = self.person_names(card)
+        keys = [card.get("name_en", "").lower(), card["name"].lower(),
+                person_en.lower(), person_es.lower()]
+        return next((self.over[k] for k in keys if k in self.over), {})
 
     @staticmethod
     def person_names(card):
@@ -405,14 +418,12 @@ class TrainerBusts:
 
     def _load_online(self, card, slug):
         person_en, person_es = self.person_names(card)
-        keys = [card.get("name_en", "").lower(), card["name"].lower(),
-                person_en.lower(), person_es.lower()]
-        forced = next((self.over[k] for k in keys if k in self.over), None)
-        if forced and forced.startswith("http"):
-            data = self._download(forced, self.cache / "trainers" / "manual" / f"{slug}.img")
+        entry = self._entry(card)
+        if entry.get("url"):
+            data = self._download(entry["url"], self.cache / "trainers" / "manual" / f"{slug}.img")
             return Image.open(io.BytesIO(data)), False, "URL manual"
         for wname, api, lang in WIKIS:
-            title = forced or (person_es if lang == "es" else person_en)
+            title = entry.get("page") or (person_es if lang == "es" else person_en)
             path = self.cache / "trainers" / wname.lower() / f"{slug}.img"
             try:
                 if not path.exists():
@@ -459,15 +470,18 @@ class TrainerBusts:
             print(f"           (sin ilustración: añade {self.folder / (slug + '.png')})")
             self._done[slug] = None
             return None
-        bust = self.crop_bust(img.convert("RGBA"), pixel)
+        e = self._entry(card)
+        bust = self.crop_bust(img.convert("RGBA"), pixel, e.get("dx", 0), e.get("dy", 0),
+                              e.get("zoom", 1))
         if BW:
             bust = to_bw(bust)
         self._done[slug] = ImageReader(bust)
         return self._done[slug]
 
     @staticmethod
-    def crop_bust(img, pixel=False):
-        """Recorte cuadrado de cabeza y hombros, centrado en la cabeza."""
+    def crop_bust(img, pixel=False, dx=0, dy=0, zoom=1):
+        """Recorte cuadrado de cabeza y hombros, centrado en la cabeza.
+        dx/dy desplazan el encuadre (fracción del lado) y zoom > 1 lo acerca."""
         alpha = img.getchannel("A")
         if alpha.getextrema()[0] == 255:  # sin transparencia: quita el fondo claro uniforme
             gray = ImageOps.grayscale(img)
@@ -475,7 +489,7 @@ class TrainerBusts:
             img.putalpha(alpha)
         l, t, r, b = alpha.getbbox() or (0, 0, *img.size)
         h = b - t
-        side = max(8, round(h * BUST_FRACTION))
+        side = max(8, round(h * BUST_FRACTION / zoom))
         # centro horizontal de la cabeza: media de píxeles opacos en la franja superior
         band = alpha.crop((l, t, r, t + max(1, round(h * 0.12))))
         cols = [sum(1 for yy in range(band.height) if band.getpixel((xx, yy)) > 128)
@@ -483,7 +497,8 @@ class TrainerBusts:
         tot = sum(cols) or 1
         head_x = l + sum(i * v for i, v in enumerate(cols)) / tot
         pad = round(side * 0.06)
-        x0, y0 = round(head_x - side / 2), t - pad
+        x0 = round(head_x - side / 2 + dx * side)
+        y0 = round(t - pad + dy * side)
         canvas_img = Image.new("RGBA", (side, side), (0, 0, 0, 0))
         canvas_img.paste(img.crop((x0, y0, x0 + side, y0 + side)), (0, 0))
         target = 480
@@ -830,7 +845,10 @@ def cmd_set(a, cache, page):
         icons = ItemIcons(cache, over)
     portraits = None
     if not a.no_busts:
-        bmap = json.loads(Path(a.bust_map).read_text(encoding="utf-8")) if a.bust_map else None
+        bpath = Path(a.bust_map) if a.bust_map else Path("bustos.json")
+        bmap = None
+        if a.bust_map or bpath.exists():  # bustos.json se usa por defecto si existe
+            bmap = json.loads(bpath.read_text(encoding="utf-8"))
         portraits = TrainerBusts(cache, a.busts, online=not a.offline_busts, overrides=bmap)
     set_name, tr = load_translations(cache, st, [x["number"] for x in cards], a.lang)
     set_name = set_name or st["name"]
@@ -933,7 +951,8 @@ def main():
     ps.add_argument("--offline-busts", action="store_true",
                     help="no buscar en WikiDex/Bulbapedia/Showdown, solo la carpeta local")
     ps.add_argument("--bust-map",
-                    help='JSON {carta o personaje: "Página de la wiki" o URL de imagen}')
+                    help='JSON {carta o personaje: "Página de la wiki" o URL de imagen, '
+                         'u objeto {"page"|"url", "dx", "dy", "zoom"} para ajustar el encuadre}')
     ps.add_argument("--no-busts", action="store_true",
                     help="Partidarios con icono de objeto en vez de busto")
     ps.add_argument("--vector-icons", action="store_true",
