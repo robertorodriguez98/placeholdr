@@ -23,7 +23,7 @@ cuando aporta. Trabajamos con una rama y un pull request por cambio
 ## Aplicación web (`web/`)
 
 ### Estado
-Completa: las fases 1 a 5 están hechas (PR #2). Se ha probado en Chrome con Pitch Black:
+Completa: las fases 1 a 5 están hechas (PR #2), y además el checklist y el rediseño (PR #3). Se ha probado en Chrome con Pitch Black:
 120 cartas en 14 hojas, el master set (194 cartas) y el PDF (9.3 MB, 16 s). El resultado
 reproduce el diseño del CLI.
 
@@ -38,6 +38,20 @@ reproduce el diseño del CLI.
     de la ficha de cada carta en TCGdex (`/v2/en/cards/{id}`, 8 a la vez y cacheadas): el
     GraphQL de TCGdex devuelve `variants: null`. TCGdex **no** modela los patrones Poké
     Ball/Master Ball de algunas ediciones.
+- **Checklist:** al hacer clic en una carta de la vista previa se marca como tuya y aparece el
+  sello verde "LA TENGO", que solo se ve en pantalla. Con "Imprimir solo las que faltan" se
+  quitan de la vista previa y del PDF; el fichero se llama `*_faltan.pdf`. Cada carta se
+  identifica como `coleccion:numero[:variante]` (`me5:77`, `me5:1:REVERSE`, `dex:25`). Las
+  marcas se guardan en `localStorage` (`pokebinder:owned`) y se pueden exportar o importar en
+  CSV: `coleccion,numero,variante,nombre`, separado por comas, punto y coma o tabuladores.
+  Hay botones para marcar o desmarcar todas las cartas de la selección. Está en `src/checklist.ts`.
+- **Apariencia:** la interfaz imita una carta de Partidario. El panel lateral es la propia
+  carta: marco negro, banda naranja "ENTRENADOR / POKEBINDER", rayas, título subrayado y un
+  medallón con un binder. Los títulos de sección son pastillas negras, como el número de
+  colección, y los botones tienen sombra dura. La vista previa va sobre una "tapa de binder"
+  oscura, con una barra naranja fija y las hojas de dos en dos, como un binder abierto. Los
+  colores están en variables CSS, todos sacados del diseño de las cartas (`--orange`,
+  `--stripe`, `--green` del Estadio, `--gold` de las rarezas).
 - **PDF:** botón "Descargar PDF". Primero resuelve todas las imágenes y después convierte cada
   hoja con `svg2pdf.js`, que se carga solo al exportar. Las URL `blob:` pasan a data URL.
 - **Docker:** `docker compose up -d --build` → http://localhost:8080. La imagen es multi-etapa
@@ -73,6 +87,7 @@ Claude in Chrome: el usuario navega con Firefox, pero instaló Chrome solo para 
   (`ItemResolver`), `busts.ts` (WikiDex/Showdown, lee `../../../bustos.json`) y `store.ts`
   (cola de 6 trabajos y caché por clave).
 - `src/pdf.ts`: jsPDF + svg2pdf.js.
+- `src/checklist.ts`: cartas que tienes (localStorage y CSV).
 - `src/main.ts`: estado de la UI (`localStorage`), selección, vista previa y botón de PDF.
 - Raíz del repo: `Dockerfile`, `docker/nginx.conf`, `compose.yaml` y `.dockerignore`.
 
@@ -276,7 +291,6 @@ Con `--bw`, el nombre por defecto del PDF lleva el sufijo `_bw`.
    - un test de humo que genere un PDF con un set pequeño desde fixtures.
 3. Mover `ITEM_KEYWORDS`, `SUPPORTER_POOL` y los demás mapas a un YAML o JSON editable.
 4. Ideas que el usuario podría querer:
-   - modo "checklist": marcar qué cartas tiene ya, leyendo un CSV, para imprimir solo las que faltan;
    - orden por página de binder de 9 o de 12 bolsillos;
    - márgenes de impresión configurables.
 
