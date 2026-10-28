@@ -4,14 +4,94 @@ Generador de **placeholders imprimibles (PDF)** para un binder de Pokémon TCG: 
 63×88 mm (tamaño carta TCG), 9 por página A4 (3×3) con líneas de corte, pensadas para meter
 en los bolsillos del binder mientras falta la carta real.
 
-Todo el código vive hoy en un único script: `pokebinder.py` (~900 líneas, Python 3).
+Hay dos implementaciones:
+
+- **`web/` — la versión principal** (en desarrollo por fases). Es una aplicación web en
+  TypeScript + Vite, sin framework, que se ejecuta **entera en el navegador**: descargas,
+  recortes, vista previa y PDF. El servidor solo sirve ficheros estáticos.
+- **`pokebinder.py` — CLI en Python, CONGELADO** desde 2026-10-28. Sigue funcionando, pero
+  no recibe cambios. Todo lo nuevo va a la web. El resto de este documento, salvo la sección
+  "Aplicación web", describe el CLI, que sirve de referencia para portar el diseño.
+
 El usuario (Roberto) habla en español; la UI, los mensajes de consola y los comentarios están
 en español. Prefiere instrucciones directas, comando a comando, y que se explique el porqué
-cuando aporta.
+cuando aporta. Trabajamos con una rama y un pull request por cambio
+(`gh pr create` / `gh pr merge --merge --delete-branch`).
 
 ---
 
-## Estado actual
+## Aplicación web (`web/`)
+
+### Estado
+Completa: las fases 1 a 5 están hechas (PR #2). Se ha probado en Chrome con Pitch Black:
+120 cartas en 14 hojas, el master set (194 cartas) y el PDF (9.3 MB, 16 s). El resultado
+reproduce el diseño del CLI.
+
+- **Vista previa:** hojas 3×3 con exactamente el mismo SVG que el PDF. Los "bolsillos" del
+  binder solo se ven en pantalla y marcan los huecos libres. Las imágenes se cargan al acercarse
+  cada hoja a la pantalla (`IntersectionObserver`) y cada carta se redibuja al recibir la suya.
+- **Colección** (modo Edición):
+  - *Set base*: solo la numeración impresa, sin secretas.
+  - *Set completo*: todas las cartas.
+  - *Master set*: el completo más una copia por variante (`REVERSE`, `1ª EDICIÓN`). La copia
+    va justo detrás de su carta, con una etiqueta gris encima del número. Las variantes salen
+    de la ficha de cada carta en TCGdex (`/v2/en/cards/{id}`, 8 a la vez y cacheadas): el
+    GraphQL de TCGdex devuelve `variants: null`. TCGdex **no** modela los patrones Poké
+    Ball/Master Ball de algunas ediciones.
+- **PDF:** botón "Descargar PDF". Primero resuelve todas las imágenes y después convierte cada
+  hoja con `svg2pdf.js`, que se carga solo al exportar. Las URL `blob:` pasan a data URL.
+- **Docker:** `docker compose up -d --build` → http://localhost:8080. La imagen es multi-etapa
+  (`node:22-alpine` compila y `nginx:1.27-alpine` sirve) y ocupa unos 75 MB. nginx solo hace
+  de proxy, con caché de 30 días, para `/proxy/showdown/sprites/trainers/`; no es un proxy
+  abierto. En desarrollo hace lo mismo el `server.proxy` de Vite.
+
+### Desarrollo
+No hay Node instalado: todo se ejecuta en un contenedor `node:22-alpine`. En este equipo,
+Docker necesita un `DOCKER_CONFIG` temporal porque falta `docker-credential-desktop` (ver la
+memoria del usuario).
+```bash
+# servidor de desarrollo en http://localhost:5173 (con recarga en caliente)
+docker run -d --rm --name pokebinder-dev -p 5173:5173 -v "<repo>:/repo" -w /repo/web node:22-alpine npm run dev
+# compilar (tsc + vite build -> web/dist)
+docker run --rm -v "<repo>:/repo" -w /repo/web node:22-alpine sh -c "npm install && npm run build"
+```
+La primera vez que se exporta un PDF en desarrollo, Vite optimiza `svg2pdf.js` y recarga la
+página una vez; en producción no pasa. Para probar la interfaz se puede usar la extensión
+Claude in Chrome: el usuario navega con Firefox, pero instaló Chrome solo para las pruebas.
+
+### Estructura
+- `src/config.ts`: mapas portados del CLI (`TYPE_COLORS`, `ITEM_KEYWORDS`…) y tamaños en mm.
+- `src/data/`: `fetch.ts` (descargas con **Cache Storage**, el equivalente a `.pokecache/`),
+  `sources.ts` (URLs), `tcg.ts` (ediciones, cartas, selección y traducciones), `species.ts`
+  (Pokédex) y `variants.ts` (master set).
+- `src/render/`: `svg.ts` (primitivas, portadas de `pill`, `title`, `rarity_mark`…, en mm con el
+  eje Y hacia abajo y letra en pt), `cards.ts` (Pokémon, Entrenador, Energía e iconos
+  vectoriales), `layout.ts` (cuadrícula, líneas de corte, bolsillos) y `page.ts` (hoja
+  completa). El texto se mide con las métricas de Helvetica-Bold de jsPDF para que la vista
+  previa encaje igual que el PDF.
+- `src/assets/`: `images.ts` (canvas: recorte, escalado, `toBW`, `cropBust`), `items.ts`
+  (`ItemResolver`), `busts.ts` (WikiDex/Showdown, lee `../../../bustos.json`) y `store.ts`
+  (cola de 6 trabajos y caché por clave).
+- `src/pdf.ts`: jsPDF + svg2pdf.js.
+- `src/main.ts`: estado de la UI (`localStorage`), selección, vista previa y botón de PDF.
+- Raíz del repo: `Dockerfile`, `docker/nginx.conf`, `compose.yaml` y `.dockerignore`.
+
+### Diferencias con el CLI
+- **Traducciones:** se usa la API REST de TCGdex (`api.tcgdex.net/v2`), no los ficheros
+  `.ts`. Son dos llamadas por edición: `/en/sets` para casarla por nombre inglés
+  (`me5` → `me05`) y `/{lang}/sets/{id}` para los nombres. No se casa por código PTCGO,
+  porque `30C` está repetido en dos ediciones.
+- **Partidarios:** se resuelve siempre su objeto de `SUPPORTER_POOL` (por si no hay busto), así
+  que el reparto de objetos puede diferir del CLI, que solo lo asignaba a los que no tenían
+  busto. No hay carpeta `retratos/`: para forzar una imagen se usa `"url"` en `bustos.json`.
+- **Idiomas:** es, en, fr, de e it. Se dejan fuera ja, ko y zh por el problema de fuentes en
+  el PDF (punto 5 de "Pendiente").
+- **CORS** (verificado): pokemon-tcg-data, PokeAPI, TCGdex, la API de WikiDex y su CDN
+  permiten `*`. Showdown no, así que pasa por el proxy de nginx.
+
+---
+
+## CLI congelado: estado
 
 Funciona y se ha probado de punta a punta con la expansión **Pitch Black (`me5`)**: 120 cartas,
 14 páginas, en color y en blanco y negro.
