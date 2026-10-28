@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pokebinder</title>
+  </head>
+  <body>
+    <aside class="panel">
+      <h1>pokebinder</h1>
+      <p class="sub">Placeholders imprimibles para tu binder</p>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" data-mode="set" aria-selected="true">Edición</button>
+        <button role="tab" data-mode="dex" aria-selected="false">Pokédex</button>
+      </div>
+
+      <section id="set-panel">
+        <label>Edición
+          <select id="set-select" disabled><option>Cargando ediciones…</option></select>
+        </label>
+        <fieldset>
+          <legend>Colección</legend>
+          <label class="check" title="Solo la numeración impresa (001-084): sin cartas secretas">
+            <input type="radio" name="collection" value="base" /> Set base</label>
+          <label class="check" title="Una carta por número, incluidas las secretas">
+            <input type="radio" name="collection" value="complete" checked /> Set completo</label>
+          <label class="check" title="Set completo más una copia por variante: reverse holo y primera edición">
+            <input type="radio" name="collection" value="master" /> Master set</label>
+        </fieldset>
+        <fieldset>
+          <legend>Tipos de carta</legend>
+          <label class="check"><input type="checkbox" name="only" value="pokemon" checked /> Pokémon</label>
+          <label class="check"><input type="checkbox" name="only" value="trainer" checked /> Entrenador</label>
+          <label class="check"><input type="checkbox" name="only" value="energy" checked /> Energía</label>
+        </fieldset>
+      </section>
+
+      <section id="dex-panel" hidden>
+        <label>Selección
+          <select id="dex-by">
+            <option value="gen">Por generación</option>
+            <option value="range">Por rango</option>
+            <option value="ids">Números sueltos</option>
+          </select>
+        </label>
+        <div id="dex-gen" class="gens"></div>
+        <label id="dex-range" hidden>Rango <input id="dex-range-input" placeholder="1-151" value="1-151" /></label>
+        <label id="dex-ids" hidden>Números <input id="dex-ids-input" placeholder="1, 4, 7, 25" /></label>
+      </section>
+
+      <section>
+        <label>Idioma <select id="lang"></select></label>
+        <label>Papel
+          <select id="paper"><option value="a4">A4</option><option value="letter">Carta (Letter)</option></select>
+        </label>
+        <label class="check"><input type="checkbox" id="bw" /> Blanco y negro (ahorra tóner)</label>
+        <label class="check"><input type="checkbox" id="cutlines" checked /> Líneas de corte</label>
+      </section>
+
+      <div class="actions">
+        <button id="pdf" class="primary" disabled>Descargar PDF</button>
+        <p id="status" class="status" aria-live="polite"></p>
+        <progress id="progress" hidden></progress>
+      </div>
+    </aside>
+
+    <main id="preview" class="preview"></main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

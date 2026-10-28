@@ -1,0 +1,135 @@
+// Primitivas de dibujo en SVG, portadas de pokebinder.py.
+// Unidades: milímetros, eje Y hacia abajo y origen en la esquina superior izquierda de la
+// carta (el CLI usaba puntos con el eje Y hacia arriba). Los tamaños de letra siguen en pt.
+import { jsPDF } from "jspdf";
+import { CARD_H, CARD_W, RARITY_ABBR, type RGB } from "../config";
+
+export const PT = 25.4 / 72; // mm por punto
+export const FONT = "helvetica, arial, sans-serif"; // svg2pdf la mapea a la Helvetica del PDF
+
+export interface RenderOpts {
+  bw: boolean; // optimizado para blanco y negro
+  lang: string;
+}
+
+// Las anchuras se miden con las métricas de Helvetica-Bold de jsPDF, las mismas que usará
+// el PDF, para que la vista previa encaje igual que lo impreso.
+const metrics = new jsPDF({ unit: "pt" });
+metrics.setFont("helvetica", "bold");
+
+/** Anchura en mm de un texto en Helvetica-Bold a `sizePt` puntos. */
+export function textWidth(text: string, sizePt: number): number {
+  const w = metrics.getStringUnitWidth(text);
+  return (Number.isFinite(w) ? w : text.length * 0.6) * sizePt * PT;
+}
+
+export function fitFont(text: string, maxPt: number, maxWidth: number, minPt = 5.5): number {
+  let size = maxPt;
+  while (size > minPt && textWidth(text, size) > maxWidth) size -= 0.25;
+  return size;
+}
+
+export const css = (c: RGB) =>
+  `rgb(${c.map((v) => Math.round(Math.min(1, Math.max(0, v)) * 255)).join(",")})`;
+
+/** Aclara un color hacia blanco (t=0 color, t=1 blanco). */
+export const mix = (c: RGB, t: number): RGB => c.map((v) => v + (1 - v) * t) as RGB;
+
+export const esc = (s: string) =>
+  s.replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
+
+const f = (n: number) => +n.toFixed(3); // números cortos en el SVG
+
+const BLACK: RGB = [0, 0, 0];
+const WHITE: RGB = [1, 1, 1];
+const isBlack = (c: RGB) => c.every((v) => v === 0);
+
+export function text(
+  x: number, y: number, str: string, sizePt: number, fill: RGB,
+  anchor: "start" | "middle" | "end" = "start",
+): string {
+  return `<text x="${f(x)}" y="${f(y)}" font-family="${FONT}" font-weight="bold" `
+    + `font-size="${f(sizePt * PT)}" fill="${css(fill)}" text-anchor="${anchor}">${esc(str)}</text>`;
+}
+
+export interface PillPos { cx?: number; left?: number; right?: number; cy: number }
+
+/** Pastilla redondeada con texto. En B/N, cualquier pastilla que no sea negra pasa a contorno. */
+export function pill(
+  label: string, sizePt: number, pos: PillPos, o: RenderOpts,
+  { bg = BLACK, fg = WHITE, h = 5.5, pad = 2.4 }: { bg?: RGB; fg?: RGB; h?: number; pad?: number } = {},
+): { svg: string; x: number; w: number } {
+  const w = textWidth(label, sizePt) + 2 * pad;
+  const x = pos.left ?? (pos.right !== undefined ? pos.right - w : pos.cx! - w / 2);
+  const y = pos.cy - h / 2;
+  const r = h / 2.6;
+  let svg: string;
+  if (o.bw && !isBlack(bg)) {
+    svg = `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(r)}" `
+      + `fill="#fff" stroke="#000" stroke-width="${f(0.9 * PT)}"/>`;
+    fg = BLACK;
+  } else {
+    svg = `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(r)}" fill="${css(bg)}"/>`;
+  }
+  svg += text(x + w / 2, pos.cy + sizePt * 0.35 * PT, label, sizePt, fg, "middle");
+  return { svg, x, w };
+}
+
+/** Marco negro grueso de la carta. */
+export function cardFrame(border: number, o: RenderOpts, bg: RGB = [0.975, 0.98, 0.99], fill = true): string {
+  return `<rect x="${f(border / 2)}" y="${f(border / 2)}" width="${f(CARD_W - border)}" `
+    + `height="${f(CARD_H - border)}" fill="${fill ? css(o.bw ? WHITE : bg) : "none"}" `
+    + `stroke="#000" stroke-width="${f(border)}"/>`;
+}
+
+/** Nombre centrado y subrayado; `ty` es la línea base. */
+export function title(cx: number, ty: number, label: string, maxW: number, size = 11): string {
+  const fs = fitFont(label, size, maxW);
+  const uw = Math.min(textWidth(label, fs) + 8, maxW + 4);
+  return text(cx, ty, label, fs, [0.1, 0.1, 0.1], "middle")
+    + `<line x1="${f(cx - uw / 2)}" y1="${f(ty + 2.2)}" x2="${f(cx + uw / 2)}" y2="${f(ty + 2.2)}" `
+    + `stroke="#000" stroke-width="${f(1.4 * PT)}"/>`;
+}
+
+export function star(cx: number, cy: number, r: number, points = 5, inner = 0.45, fill = "#000"): string {
+  const pts: string[] = [];
+  for (let i = 0; i < points * 2; i++) {
+    const rad = i % 2 === 0 ? r : r * inner;
+    const a = Math.PI / 2 + (i * Math.PI) / points;
+    pts.push(`${f(cx + rad * Math.cos(a))},${f(cy - rad * Math.sin(a))}`);
+  }
+  return `<polygon points="${pts.join(" ")}" fill="${fill}"/>`;
+}
+
+export const circle = (cx: number, cy: number, r: number, fill: string, extra = "") =>
+  `<circle cx="${f(cx)}" cy="${f(cy)}" r="${f(r)}" fill="${fill}" ${extra}/>`;
+
+const GOLD: RGB = [0.78, 0.62, 0.15];
+
+/** Símbolo de rareza a la derecha del número: ● ◆ ★ o abreviatura dorada. */
+export function rarityMark(rarity: string | undefined, x: number, cy: number, o: RenderOpts): string {
+  if (!rarity) return "";
+  const s = 1.5;
+  if (rarity === "Common") return circle(x + s, cy, s, "#000");
+  if (rarity === "Uncommon") {
+    return `<polygon points="${f(x + s)},${f(cy - s * 1.2)} ${f(x + 2 * s)},${f(cy)} `
+      + `${f(x + s)},${f(cy + s * 1.2)} ${f(x)},${f(cy)}" fill="#000"/>`;
+  }
+  if (rarity === "Rare") return star(x + s * 1.2, cy, s * 1.4);
+  const abbr = RARITY_ABBR[rarity] ?? rarity.split(/\s+/).map((w) => w[0]).join("");
+  return pill(abbr, 6, { left: x, cy }, o, { bg: GOLD, h: 4.2, pad: 1.6 }).svg;
+}
+
+/** Número de colección (pastilla negra) con la rareza y, en el master set, la variante. */
+export function footer(number: string, rarity: string | undefined, variant: string | undefined, o: RenderOpts): string {
+  const cx = CARD_W / 2, cy = CARD_H - 10;
+  const num = pill(number, 9, { cx, cy }, o);
+  let svg = num.svg + rarityMark(rarity, num.x + num.w + 1.8, cy, o);
+  if (variant) {
+    svg += pill(variant, 6, { cx, cy: cy - 6.2 }, o, { bg: [0.55, 0.58, 0.64], h: 4.2, pad: 1.8 }).svg;
+  }
+  return svg;
+}
+
+export const GOLD_BADGE = GOLD;
+export { f as num };
