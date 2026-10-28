@@ -3,69 +3,123 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#dc5c33" />
     <title>pokebinder</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='2' width='26' height='28' rx='3' fill='%23fff' stroke='%23000' stroke-width='3'/%3E%3Crect x='3' y='2' width='26' height='8' fill='%23dc5c33' stroke='%23000' stroke-width='3'/%3E%3Ccircle cx='16' cy='19' r='5' fill='%23f6d4c7' stroke='%23dc5c33' stroke-width='2'/%3E%3C/svg%3E" />
   </head>
   <body>
     <aside class="panel">
-      <h1>pokebinder</h1>
-      <p class="sub">Placeholders imprimibles para tu binder</p>
+      <!-- El panel es una carta de Partidario: banda, título subrayado y medallón -->
+      <header class="band">
+        <span class="band-kicker">ENTRENADOR</span>
+        <span class="band-pill">POKEBINDER</span>
+      </header>
+      <div class="panel-body">
+        <div class="hero">
+          <h1>Placeholders para tu binder</h1>
+          <div class="medallion" aria-hidden="true">
+            <svg viewBox="0 0 64 64">
+              <rect x="13" y="10" width="38" height="46" rx="4" fill="#fff" stroke="#16181d" stroke-width="3.5"/>
+              <rect x="13" y="10" width="38" height="10" rx="2" fill="#dc5c33" stroke="#16181d" stroke-width="3.5"/>
+              <g fill="#fbe3da" stroke="#dc5c33" stroke-width="1.6">
+                <rect x="19" y="25" width="7.5" height="10" rx="1"/><rect x="28.25" y="25" width="7.5" height="10" rx="1"/>
+                <rect x="37.5" y="25" width="7.5" height="10" rx="1"/><rect x="19" y="39" width="7.5" height="10" rx="1"/>
+                <rect x="28.25" y="39" width="7.5" height="10" rx="1"/><rect x="37.5" y="39" width="7.5" height="10" rx="1"/>
+              </g>
+              <g fill="#16181d"><circle cx="13" cy="24" r="2.6"/><circle cx="13" cy="33" r="2.6"/><circle cx="13" cy="42" r="2.6"/></g>
+            </svg>
+          </div>
+        </div>
 
-      <div class="tabs" role="tablist">
-        <button role="tab" data-mode="set" aria-selected="true">Edición</button>
-        <button role="tab" data-mode="dex" aria-selected="false">Pokédex</button>
-      </div>
+        <div class="tabs" role="tablist" aria-label="Modo">
+          <button role="tab" data-mode="set" aria-selected="true">Edición</button>
+          <button role="tab" data-mode="dex" aria-selected="false">Pokédex</button>
+        </div>
 
-      <section id="set-panel">
-        <label>Edición
-          <select id="set-select" disabled><option>Cargando ediciones…</option></select>
-        </label>
-        <fieldset>
-          <legend>Colección</legend>
-          <label class="check" title="Solo la numeración impresa (001-084): sin cartas secretas">
-            <input type="radio" name="collection" value="base" /> Set base</label>
-          <label class="check" title="Una carta por número, incluidas las secretas">
-            <input type="radio" name="collection" value="complete" checked /> Set completo</label>
-          <label class="check" title="Set completo más una copia por variante: reverse holo y primera edición">
-            <input type="radio" name="collection" value="master" /> Master set</label>
-        </fieldset>
-        <fieldset>
-          <legend>Tipos de carta</legend>
-          <label class="check"><input type="checkbox" name="only" value="pokemon" checked /> Pokémon</label>
-          <label class="check"><input type="checkbox" name="only" value="trainer" checked /> Entrenador</label>
-          <label class="check"><input type="checkbox" name="only" value="energy" checked /> Energía</label>
-        </fieldset>
-      </section>
+        <section id="set-panel" class="block">
+          <h2 class="pill-title">Edición</h2>
+          <select id="set-select" aria-label="Edición" disabled><option>Cargando ediciones…</option></select>
 
-      <section id="dex-panel" hidden>
-        <label>Selección
-          <select id="dex-by">
+          <h2 class="pill-title">Colección</h2>
+          <div class="segmented" role="radiogroup" aria-label="Colección">
+            <label title="Solo la numeración impresa (001-084): sin cartas secretas">
+              <input type="radio" name="collection" value="base" /><span>Base</span></label>
+            <label title="Una carta por número, incluidas las secretas">
+              <input type="radio" name="collection" value="complete" checked /><span>Completo</span></label>
+            <label title="Set completo más una copia por variante: reverse holo y primera edición">
+              <input type="radio" name="collection" value="master" /><span>Master</span></label>
+          </div>
+
+          <h2 class="pill-title">Tipos de carta</h2>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" name="only" value="pokemon" checked /><span>Pokémon</span></label>
+            <label class="chip"><input type="checkbox" name="only" value="trainer" checked /><span>Entrenador</span></label>
+            <label class="chip"><input type="checkbox" name="only" value="energy" checked /><span>Energía</span></label>
+          </div>
+        </section>
+
+        <section id="dex-panel" class="block" hidden>
+          <h2 class="pill-title">Selección</h2>
+          <select id="dex-by" aria-label="Selección">
             <option value="gen">Por generación</option>
             <option value="range">Por rango</option>
             <option value="ids">Números sueltos</option>
           </select>
-        </label>
-        <div id="dex-gen" class="gens"></div>
-        <label id="dex-range" hidden>Rango <input id="dex-range-input" placeholder="1-151" value="1-151" /></label>
-        <label id="dex-ids" hidden>Números <input id="dex-ids-input" placeholder="1, 4, 7, 25" /></label>
-      </section>
+          <div id="dex-gen" class="chips gens"></div>
+          <input id="dex-range-input" aria-label="Rango" placeholder="1-151" value="1-151" hidden />
+          <input id="dex-ids-input" aria-label="Números" placeholder="1, 4, 7, 25" hidden />
+        </section>
 
-      <section>
-        <label>Idioma <select id="lang"></select></label>
-        <label>Papel
-          <select id="paper"><option value="a4">A4</option><option value="letter">Carta (Letter)</option></select>
-        </label>
-        <label class="check"><input type="checkbox" id="bw" /> Blanco y negro (ahorra tóner)</label>
-        <label class="check"><input type="checkbox" id="cutlines" checked /> Líneas de corte</label>
-      </section>
+        <section class="block">
+          <h2 class="pill-title">Checklist</h2>
+          <div class="tally">
+            <div class="tally-row"><strong id="owned-count">0</strong><span id="owned-of">de 0</span><em id="owned-pct">0 %</em></div>
+            <div class="meter"><div id="owned-bar"></div></div>
+          </div>
+          <label class="switch"><input type="checkbox" id="hide-owned" /><span class="track"></span>
+            <span>Imprimir solo las que faltan</span></label>
+          <p class="hint">Haz clic en una carta de la vista previa para marcarla como tuya.</p>
+          <div class="btn-row">
+            <button class="btn" id="mark-all">Marcar todas</button>
+            <button class="btn" id="unmark-all">Desmarcar</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn" id="import-csv">Importar CSV</button>
+            <button class="btn" id="export-csv">Exportar CSV</button>
+            <input type="file" id="csv-file" accept=".csv,text/csv,text/plain" hidden />
+          </div>
+        </section>
 
-      <div class="actions">
-        <button id="pdf" class="primary" disabled>Descargar PDF</button>
-        <p id="status" class="status" aria-live="polite"></p>
-        <progress id="progress" hidden></progress>
+        <section class="block">
+          <h2 class="pill-title">Impresión</h2>
+          <div class="pair">
+            <select id="lang" aria-label="Idioma"></select>
+            <select id="paper" aria-label="Papel"><option value="a4">A4</option><option value="letter">Carta</option></select>
+          </div>
+          <label class="switch"><input type="checkbox" id="bw" /><span class="track"></span><span>Blanco y negro</span></label>
+          <label class="switch"><input type="checkbox" id="cutlines" checked /><span class="track"></span><span>Líneas de corte</span></label>
+        </section>
       </div>
+
+      <footer class="actions">
+        <button id="pdf" class="primary" disabled>
+          <span>Descargar PDF</span><span class="diamond" aria-hidden="true">◆</span>
+        </button>
+        <div class="meter slim" id="progress" hidden><div></div></div>
+        <p id="status" class="status" aria-live="polite"></p>
+      </footer>
     </aside>
 
-    <main id="preview" class="preview"></main>
+    <main class="stage">
+      <header class="stage-bar">
+        <div class="stage-title">
+          <span class="stage-kicker" id="stage-kicker">EDICIÓN</span>
+          <h2 id="stage-name">…</h2>
+        </div>
+        <div class="stage-pills" id="stage-pills"></div>
+      </header>
+      <div id="preview" class="preview"></div>
+    </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
