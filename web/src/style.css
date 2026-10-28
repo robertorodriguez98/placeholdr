@@ -44,7 +44,7 @@ legend { font-size: 12px; color: var(--muted); padding: 0 4px; }
 label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; }
 label.check { flex-direction: row; align-items: center; gap: 8px; font-weight: 400; }
 
-select, input:not([type="checkbox"]) {
+select, input:not([type="checkbox"]):not([type="radio"]) {
   font: inherit;
   font-weight: 400;
   padding: 7px 8px;
@@ -64,23 +64,32 @@ select, input:not([type="checkbox"]) {
 .gens { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .gens label.check { font-size: 13px; }
 
-.status { margin: auto 0 0; font-size: 13px; color: var(--muted); min-height: 1.4em; }
-.status.error { color: #b3261e; }
-
-.preview { padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
-
-/* Lista provisional (fase 1): se sustituye por la vista previa de páginas en la fase 2 */
-.summary { font-size: 14px; color: var(--muted); }
-.cardlist {
-  background: var(--page); border-radius: 8px; padding: 12px 16px; width: min(720px, 100%);
-  columns: 2; column-gap: 24px; font-size: 13px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+.actions { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.primary {
+  font: inherit; font-weight: 700; padding: 11px; border: 0; border-radius: 8px;
+  background: var(--accent); color: #fff; cursor: pointer;
 }
-.cardlist div { break-inside: avoid; padding: 2px 0; display: flex; gap: 8px; }
-.cardlist .num { font-variant-numeric: tabular-nums; color: var(--muted); min-width: 64px; }
+.primary:hover:not(:disabled) { filter: brightness(1.08); }
+.primary:disabled { opacity: 0.5; cursor: default; }
+.status { margin: 0; font-size: 13px; color: var(--muted); min-height: 1.4em; }
+.status.error { color: #b3261e; }
+progress { width: 100%; height: 6px; accent-color: var(--accent); }
+
+.preview { padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 28px; }
+.summary { margin: 0; font-size: 14px; color: var(--muted); text-align: center; }
+
+/* Hojas de la vista previa: el mismo SVG que el PDF, a escala */
+.sheet { width: min(620px, 100%); display: flex; flex-direction: column; gap: 6px; }
+.sheet svg {
+  display: block; width: 100%; height: auto; background: var(--page);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 6px 20px rgb(0 0 0 / 0.08);
+}
+.sheet .label { font-size: 12px; color: var(--muted); text-align: center; }
+/* bolsillos del binder (solo en pantalla): se ven en los huecos que quedan libres */
+.pocket { fill: rgb(0 0 0 / 0.025); stroke: #c9cfd8; stroke-width: 0.35; stroke-dasharray: 1.4 1; }
 
 @media (max-width: 760px) {
   body { grid-template-columns: 1fr; }
   .panel { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 16px; }
   .preview { padding: 16px; }
-  .cardlist { columns: 1; }
 }

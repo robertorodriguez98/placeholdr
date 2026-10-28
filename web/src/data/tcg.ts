@@ -28,6 +28,7 @@ export interface TcgCard {
 export interface SetCard extends TcgCard {
   nameEn: string;
   label: string; // "077/084"
+  variant?: string; // copia extra del master set ("REVERSE"...)
 }
 
 export async function loadSets(refresh = false): Promise<TcgSet[]> {
@@ -66,9 +67,17 @@ export function fmtNumber(num: string, total: number): string {
 }
 
 interface TcgdexSetBrief { id: string; name: string }
-interface TcgdexSet {
+export interface TcgdexSet {
   name: string;
-  cards: { localId: string; name: string }[];
+  cards: { id: string; localId: string; name: string }[];
+}
+
+/** Id de la expansión en TCGdex, casada por nombre inglés ("Pitch Black": me5 -> me05). */
+export async function tcgdexSetId(set: TcgSet): Promise<string | null> {
+  const list = await fetchJson<TcgdexSetBrief[]>(`${TCGDEX_API}/en/sets`);
+  const match = list.find((s) => s.name.toLowerCase() === set.name.toLowerCase());
+  if (!match) console.warn(`TCGdex no tiene '${set.name}': nombres en inglés y sin variantes`);
+  return match?.id ?? null;
 }
 
 /**
@@ -80,13 +89,9 @@ export async function loadTranslations(
   set: TcgSet, lang: string,
 ): Promise<{ setName: string; names: Map<string, string> } | null> {
   if (lang === "en") return null;
-  const list = await fetchJson<TcgdexSetBrief[]>(`${TCGDEX_API}/en/sets`);
-  const match = list.find((s) => s.name.toLowerCase() === set.name.toLowerCase());
-  if (!match) {
-    console.warn(`TCGdex no tiene '${set.name}': nombres en inglés`);
-    return null;
-  }
-  const tr = await fetchJson<TcgdexSet>(`${TCGDEX_API}/${lang}/sets/${match.id}`);
+  const id = await tcgdexSetId(set);
+  if (!id) return null;
+  const tr = await fetchJson<TcgdexSet>(`${TCGDEX_API}/${lang}/sets/${id}`);
   const names = new Map<string, string>();
   for (const c of tr.cards) {
     let name = c.name;
@@ -108,26 +113,38 @@ const SUPERTYPE: Record<Supertype, TcgCard["supertype"]> = {
   pokemon: "Pokémon", trainer: "Trainer", energy: "Energy",
 };
 
+/**
+ * base: solo la numeración impresa (sin secretas); complete: todas las cartas;
+ * master: todas más una copia por variante (reverse, primera edición).
+ */
+export type Collection = "base" | "complete" | "master";
+
 export interface SetSelection {
   only: Supertype[]; // vacío = todas
-  mainOnly: boolean;
+  collection: Collection;
 }
 
 export function selectCards(
   set: TcgSet, cards: TcgCard[], sel: SetSelection, names: Map<string, string> | null,
+  extras: (card: TcgCard) => string[] = () => [],
 ): SetCard[] {
   let out = cards;
   if (sel.only.length) {
     const want = new Set(sel.only.map((k) => SUPERTYPE[k]));
     out = out.filter((c) => want.has(c.supertype));
   }
-  if (sel.mainOnly) {
+  if (sel.collection === "base") {
     out = out.filter((c) => /^\d+$/.test(c.number) && parseInt(c.number, 10) <= set.printedTotal);
   }
-  return out.map((c) => ({
-    ...c,
-    nameEn: c.name,
-    name: names?.get(normNum(c.number)) ?? c.name,
-    label: fmtNumber(c.number, set.printedTotal),
-  }));
+  return out.flatMap((c) => {
+    const card = {
+      ...c,
+      nameEn: c.name,
+      name: names?.get(normNum(c.number)) ?? c.name,
+      label: fmtNumber(c.number, set.printedTotal),
+    };
+    // las copias de variante van justo detrás de su carta, como en el binder
+    const copies = sel.collection === "master" ? extras(c) : [];
+    return [card, ...copies.map((variant) => ({ ...card, variant }))];
+  });
 }
