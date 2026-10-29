@@ -99,10 +99,15 @@ uiLangBox.querySelectorAll<HTMLButtonElement>("button").forEach((b) => {
 });
 applyStatic();
 
-// guía de uso: se abre con el botón "?" de la banda y se cierra con su botón, Esc o clic fuera
+// diálogos (guía de uso y legal): se cierran con su botón, Esc o un clic fuera
 const guide = $<HTMLDialogElement>("#guide");
+const legal = $<HTMLDialogElement>("#legal");
 $<HTMLButtonElement>("#guide-open").onclick = () => guide.showModal();
-guide.addEventListener("click", (e) => { if (e.target === guide) guide.close(); });
+$<HTMLButtonElement>("#legal-open").onclick = () => legal.showModal();
+for (const d of [guide, legal]) d.addEventListener("click", (e) => { if (e.target === d) d.close(); });
+// el correo de contacto se monta aquí para que no aparezca entero en el HTML (bots de spam)
+const mail = ["contact", "placeholdr.org"].join("@");
+Object.assign($<HTMLAnchorElement>("#contact-mail"), { href: `mailto:${mail}`, textContent: mail });
 
 document.querySelectorAll<HTMLButtonElement>(".tabs button").forEach((b) => {
   b.onclick = () => { state.mode = b.dataset.mode as State["mode"]; changed(); };

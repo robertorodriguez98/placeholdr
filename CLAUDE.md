@@ -99,6 +99,15 @@ reproduce el diseño del CLI.
   Partidario y 6 pasos: qué imprimir, checklist, impresión, imprimir al 100 % ("tamaño
   real", nunca "ajustar a la página"), recortar y al binder. Los textos son las claves
   `guide.*` de `i18n.ts`.
+- **Legal, privacidad y créditos:** botón al pie de la vista previa que abre otro `<dialog>`
+  como el de la guía (claves `legalpage.*` y `credits.*`). Incluye: proyecto de fans no oficial
+  y que las imágenes son de sus dueños (las carga el navegador, Placeholdr no las aloja);
+  uso personal y no comercial; contacto para titulares de derechos (un Gmail personal,
+  que `main.ts` monta en tiempo de ejecución para que no esté entero en el HTML); privacidad
+  (sin cookies ni analítica, `localStorage`, y a qué servicios se conecta el navegador); y
+  créditos con licencias (pokemon-tcg-data, que no declara licencia; TCGdex, MIT; PokeAPI,
+  BSD-3 en datos e imágenes de Nintendo; WikiDex; M PLUS 1p, OFL; jsPDF y svg2pdf.js, MIT).
+  Si se añade una fuente de datos nueva, hay que añadirla a créditos y a privacidad.
 - **Donaciones:** Ko-fi (`https://ko-fi.com/krowno16`), solo para pagar el dominio y el
   servidor. Son enlaces normales, sin el widget de Ko-fi, para no cargar scripts de terceros
   que rastreen: uno discreto bajo "Descargar PDF", otro al pie de la vista previa y otro en la
