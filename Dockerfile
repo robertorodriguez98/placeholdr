@@ -1,9 +1,9 @@
-# pokebinder web: compila con Node y sirve los estáticos con nginx.
+# Placeholdr: compila con Node y sirve los estáticos con nginx.
 # Todo el trabajo (descargas, imágenes, PDF) ocurre en el navegador del usuario;
 # nginx solo sirve ficheros y hace de proxy con caché para Showdown (sin CORS).
 #
-#   docker build -t pokebinder .
-#   docker run -d -p 8080:80 pokebinder     ->  http://localhost:8080
+#   docker build -t placeholdr .
+#   docker run -d -p 8080:80 placeholdr     ->  http://localhost:8080
 
 FROM node:22-alpine AS build
 WORKDIR /repo/web
