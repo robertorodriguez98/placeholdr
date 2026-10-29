@@ -6,7 +6,7 @@
 //   me5:1:REVERSE   la copia reverse holo de Tropius (master set)
 //   dex:25          Pikachu (modo Pokédex)
 
-const KEY = "pokebinder:owned";
+const KEY = "placeholdr:owned";
 
 let owned: Set<string> = load();
 
