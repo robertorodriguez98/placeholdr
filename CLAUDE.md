@@ -52,6 +52,11 @@ reproduce el diseño del CLI.
   oscura, con una barra naranja fija y las hojas de dos en dos, como un binder abierto. Los
   colores están en variables CSS, todos sacados del diseño de las cartas (`--orange`,
   `--stripe`, `--green` del Estadio, `--gold` de las rarezas).
+- **Cartas juntas** (por defecto, interruptor en "Impresión"): sin hueco entre cartas, así que
+  cada corte separa dos a la vez (8 cortes por hoja en vez de 12) y no sobran tiras de papel.
+  Las guías pasan a ser marcas de corte en el margen, sin pisar las cartas. Desactivado vuelve
+  a los 2 mm del CLI con la línea discontinua en cada hueco. Las hojas no cambian: en A4 y
+  Carta solo caben 3×3 cartas de 63×88 mm en cualquier caso. Está en `src/render/layout.ts`.
 - **PDF:** botón "Descargar PDF". Primero resuelve todas las imágenes y después convierte cada
   hoja con `svg2pdf.js`, que se carga solo al exportar. Las URL `blob:` pasan a data URL.
 - **Docker:** `docker compose up -d --build` → http://localhost:8080. La imagen es multi-etapa
