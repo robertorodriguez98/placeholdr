@@ -106,7 +106,7 @@ $<HTMLButtonElement>("#guide-open").onclick = () => guide.showModal();
 $<HTMLButtonElement>("#legal-open").onclick = () => legal.showModal();
 for (const d of [guide, legal]) d.addEventListener("click", (e) => { if (e.target === d) d.close(); });
 // el correo de contacto se monta aquí para que no aparezca entero en el HTML (bots de spam)
-const mail = ["krowno.iso", "gmail.com"].join("@");
+const mail = ["contact", "placeholdr.org"].join("@");
 Object.assign($<HTMLAnchorElement>("#contact-mail"), { href: `mailto:${mail}`, textContent: mail });
 
 document.querySelectorAll<HTMLButtonElement>(".tabs button").forEach((b) => {
