@@ -118,8 +118,25 @@ reproduce el diseño del CLI.
   quitar el Gmail personal).
 - **Donaciones:** Ko-fi (`https://ko-fi.com/krowno16`), solo para pagar el dominio y el
   servidor. Son enlaces normales, sin el widget de Ko-fi, para no cargar scripts de terceros
-  que rastreen: uno discreto bajo "Descargar PDF", otro al pie de la vista previa y otro en la
-  guía. La herramienta es gratis entera: nada de funciones a cambio de donar.
+  que rastreen. Son pastillas con borde y sombra dura (`.donate`, `.kofi`): una bajo "Descargar
+  PDF", un bloque con texto y botón naranja al pie de la vista previa, y otra en la guía y en la
+  página legal (con el texto corto `donate.cta`, que no se parte en móvil). La herramienta es
+  gratis entera: nada de funciones a cambio de donar.
+- **Sin imágenes** (interruptor "Imágenes" en "Impresión", `state.images`): al desactivarlo,
+  `update()` quita el `job` de cada carta, así que no se descarga nada y todas usan su dibujo
+  vectorial: Entrenadores con `vectorIcon`, Energías con el orbe y su estrella, y Pokémon con
+  `dexBadge` (círculo del color del tipo con el número de la Pokédex; `PokemonSpec.dex`). El PDF
+  lleva el sufijo `_no-images`/`_sin-imagenes`, pesa ~0,1 MB y sale en un segundo. Sirve para
+  ahorrar tinta y como plan B legal si algún día hubiera que dejar de mostrar imágenes de terceros.
+- **Versión:** al pie de la vista previa, junto a "Legal". `vite.config.ts` inyecta
+  `__APP_VERSION__` (de `package.json`) y `__APP_COMMIT__` (de `CF_PAGES_COMMIT_SHA` en Cloudflare
+  Pages o de `git`; vacío en Docker y en el contenedor de desarrollo, que no tienen git). Si hay
+  commit, enlaza a él en GitHub. Al publicar algo notable, subir la versión de `package.json`
+  (y `package-lock.json`). La 1.0.0 es la del lanzamiento.
+- **Móvil** (≤ 820 px): el panel va encima de la vista previa con la cabecera compacta, y el
+  pie del panel (botón del PDF y estado) queda fijo abajo para descargar sin volver a subir; el
+  donativo de esa barra se oculta porque está al pie. Los campos usan 16 px para que iOS no
+  amplíe al enfocarlos. Los textos dicen "haz clic o toca". Probado a 390 px sin scroll horizontal.
 - **Idioma de la interfaz:** pastilla EN/ES a la derecha de la banda naranja. Por defecto, inglés. La
   elección se guarda en `localStorage` (`placeholdr:ui-lang`), igual que el resto del estado;
   no hace falta una cookie porque no hay servidor que tenga que leerla. Es **independiente del
