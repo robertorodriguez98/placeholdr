@@ -1,0 +1,14 @@
+# Cabeceras de Cloudflare Pages (Vite copia public/ a dist/).
+# CSP: solo scripts propios y conexiones a las fuentes de datos de src/data/sources.ts.
+# Si se añade una fuente nueva (o una "url" de otro dominio en bustos.json), va en connect-src.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://raw.githubusercontent.com https://api.tcgdex.net https://cdn.jsdelivr.net https://www.wikidex.net https://images.wikidexcdn.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000
+
+# ficheros con hash en el nombre: se pueden cachear para siempre
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
