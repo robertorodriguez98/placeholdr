@@ -99,6 +99,11 @@ uiLangBox.querySelectorAll<HTMLButtonElement>("button").forEach((b) => {
 });
 applyStatic();
 
+// guía de uso: se abre con el botón "?" de la banda y se cierra con su botón, Esc o clic fuera
+const guide = $<HTMLDialogElement>("#guide");
+$<HTMLButtonElement>("#guide-open").onclick = () => guide.showModal();
+guide.addEventListener("click", (e) => { if (e.target === guide) guide.close(); });
+
 document.querySelectorAll<HTMLButtonElement>(".tabs button").forEach((b) => {
   b.onclick = () => { state.mode = b.dataset.mode as State["mode"]; changed(); };
 });
