@@ -40,6 +40,30 @@ reproduce el diseño del CLI.
     de la ficha de cada carta en TCGdex (`/v2/en/cards/{id}`, 8 a la vez y cacheadas): el
     GraphQL de TCGdex devuelve `variants: null`. TCGdex **no** modela los patrones Poké
     Ball/Master Ball de algunas ediciones.
+- **Sets japoneses** (selector "Catálogo": Internacional / Japón): salen de la API de TCGdex
+  en japonés (`src/data/japan.ts`), con los **nombres en japonés**. La lista se arma por series
+  (`/ja/series` + `/ja/series/{id}`): TCGdex no da la fecha de cada set, así que se ordenan
+  dentro de la serie por número (M6a, M6, M5... y luego barajas y promos). El listado de un
+  set solo trae nombres, así que se pide la ficha de cada carta (8 a la vez, con caché) y se
+  convierte a `TcgCard`:
+  - la rareza se normaliza ("Double rare" → "Double Rare"; "None" = sin rareza);
+  - "Tool" pasa a "Pokémon Tool";
+  - el tipo de las energías sale del kanji del nombre (炎 Fuego, 水 Agua, 鋼 Metal...);
+  - a muchos Pokémon les falta `dexId` (マンムーex...): se deduce buscando el nombre japonés de
+    especie más largo de PokeAPI (idiomas 1 y 11) contenido en el de la carta;
+  - las insignias ex/MEGA ex se sacan del nombre (`jaNameEn`).
+
+  Los ids llevan el prefijo `ja-` (`ja-M4`) para no chocar con los internacionales en el
+  checklist (`ja-m4:1`). Los Partidarios japoneses no buscan busto, porque WikiDex se busca por
+  el nombre en inglés o español, y usan su objeto. Las etiquetas (tipo, ENTRENADOR...) siguen
+  el idioma de las cartas. **Fuente:** M PLUS 1p Bold (OFL, TrueType, 1,8 MB) desde jsDelivr,
+  fijada a un commit de google/fonts (`CJK_FONT`). Cubre todos los caracteres de los 13.006
+  nombres de TCGdex. Va como `@font-face` para la vista previa y `addCjkFont` la incrusta en el
+  PDF. `text()` solo la usa en los textos con kana o kanji, y `textWidth` mide esos caracteres
+  como un cuadratín. Verificado: M4 da 120 cartas en 14 hojas, el PDF ocupa 8,9 MB y el texto
+  japonés se puede extraer. **Chino simplificado:** TCGdex lista los sets de China continental,
+  pero casi todos sin cartas (8 de 57). Chino tradicional: completo hasta SV10 (mayo de 2025).
+  No están en la app.
 - **Checklist:** al hacer clic en una carta de la vista previa se marca como tuya y aparece el
   sello verde "LA TENGO", que solo se ve en pantalla. Con "Imprimir solo las que faltan" se
   quitan de la vista previa y del PDF; el fichero se llama `*_faltan.pdf`. Cada carta se
@@ -119,6 +143,7 @@ Claude in Chrome: el usuario navega con Firefox, pero instaló Chrome solo para 
 - `src/pdf.ts`: jsPDF + svg2pdf.js.
 - `src/checklist.ts`: cartas que tienes (localStorage y CSV).
 - `src/migrate.ts`: pasa los datos guardados con el nombre antiguo (se importa la primera).
+- `src/data/japan.ts`: sets japoneses de TCGdex convertidos al formato de pokemon-tcg-data.
 - `src/i18n.ts`: textos de la interfaz en inglés y español, `t()`, `plural()` y `applyStatic()`.
 - `src/main.ts`: estado de la UI (`localStorage`), selección, vista previa y botón de PDF.
 - Raíz del repo: `Dockerfile`, `docker/nginx.conf`, `compose.yaml` y `.dockerignore`.
@@ -289,8 +314,8 @@ Con `--bw`, el nombre por defecto del PDF lleva el sufijo `_bw`.
    rubio y los brazos con la cara. **Resuelto con ajuste manual** en `bustos.json`
    (Misty `dx -0.2, dy 0.05`; Gladio `dx 0.06, zoom 0.92`). Para personajes nuevos que encuadren
    mal se añade su entrada. Si llegan a ser muchos, valorar un detector anime-face de OpenCV.
-5. Helvetica (fuente estándar de reportlab) usa WinAnsi: **ja/ko/zh no se renderizan**. Para
-   esos idiomas habría que registrar una TTF (Noto Sans CJK).
+5. Helvetica (fuente estándar de reportlab) usa WinAnsi: **ja/ko/zh no se renderizan en el CLI**.
+   La web ya lo resuelve para el japonés con M PLUS 1p (ver "Sets japoneses").
 6. El tipo de una Energía se deduce buscando la palabra del tipo en el nombre inglés, lo cual
    es frágil con energías especiales sin tipo en el nombre.
 7. Los números no numéricos (`TG01`, `SV001`) se imprimen tal cual (`TG01/084`), sin revisar
