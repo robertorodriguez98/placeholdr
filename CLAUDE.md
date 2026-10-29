@@ -58,6 +58,12 @@ reproduce el diseño del CLI.
   la banda negra que forman los bordes de dos cartas (se dibujan encima de las cartas). Desactivado vuelve
   a los 2 mm del CLI con la línea discontinua en cada hueco. Las hojas no cambian: en A4 y
   Carta solo caben 3×3 cartas de 63×88 mm en cualquier caso. Está en `src/render/layout.ts`.
+- **Bordes negros** (por defecto, interruptor en "Impresión"): si se desactiva, `cardFrame` no
+  dibuja el marco y el fondo de la carta (rayas y banda de los Entrenadores incluidas) llega
+  hasta el borde. La guía es entonces una línea discontinua gris oscura justo en el borde de
+  cada carta (`cardOutlines`), sin la línea blanca de la junta. Con cartas juntas, los bordes
+  compartidos se trazan una sola vez y se mantienen las marcas del margen. Va en
+  `RenderOpts.frame`.
 - **PDF:** botón "Descargar PDF". Primero resuelve todas las imágenes y después convierte cada
   hoja con `svg2pdf.js`, que se carga solo al exportar. Las URL `blob:` pasan a data URL.
 - **Docker:** `docker compose up -d --build` → http://localhost:8080. La imagen es multi-etapa

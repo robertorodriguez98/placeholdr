@@ -30,13 +30,14 @@ interface State {
   bw: boolean;
   cutlines: boolean;
   compact: boolean;   // cartas juntas, sin hueco: menos cortes
+  frame: boolean;     // marco negro de las cartas
   hideOwned: boolean; // checklist: imprimir solo las que faltan
 }
 
 const DEFAULTS: State = {
   mode: "set", setId: "", only: ["pokemon", "trainer", "energy"], collection: "complete",
   dexBy: "gen", gens: [1], range: "1-151", ids: "", lang: "es", paper: "a4", bw: false,
-  cutlines: true, compact: true, hideOwned: false,
+  cutlines: true, compact: true, frame: true, hideOwned: false,
 };
 const STORE_KEY = "pokebinder:state";
 
@@ -93,6 +94,8 @@ const cutChk = $<HTMLInputElement>("#cutlines");
 cutChk.onchange = () => { state.cutlines = cutChk.checked; changed(); };
 const compactChk = $<HTMLInputElement>("#compact");
 compactChk.onchange = () => { state.compact = compactChk.checked; changed(); };
+const frameChk = $<HTMLInputElement>("#frame");
+frameChk.onchange = () => { state.frame = frameChk.checked; changed(); };
 const hideChk = $<HTMLInputElement>("#hide-owned");
 hideChk.onchange = () => { state.hideOwned = hideChk.checked; saveState(); rerender(); };
 
@@ -131,6 +134,7 @@ function syncControls() {
   bwChk.checked = state.bw;
   cutChk.checked = state.cutlines;
   compactChk.checked = state.compact;
+  frameChk.checked = state.frame;
   hideChk.checked = state.hideOwned;
   if (sets) setSelect.value = state.setId;
   onlyChks.forEach((c) => (c.checked = state.only.includes(c.value as Supertype)));
@@ -297,7 +301,7 @@ async function update() {
   try {
     const sel = state.mode === "set" ? await setSelection(my) : await dexSelection();
     if (my !== token || !sel) return;
-    current = { sel, visible: [], opts: { bw: state.bw, lang: state.lang } };
+    current = { sel, visible: [], opts: { bw: state.bw, lang: state.lang, frame: state.frame } };
     rerender();
   } catch (e) {
     if (my === token) { setStatus(String(e), true); setProgress(null); }

@@ -77,9 +77,10 @@ function drawTrainer(s: TrainerSpec, asset: Asset, o: RenderOpts, id: string): s
   const col = o.bw ? BW_INK : st.color;
   const clip = `clip-${id}`;
   let svg = cardFrame(BORDER, o);
-  // fondo de rayas y banda superior, recortados al interior del marco
-  svg += `<clipPath id="${clip}"><rect x="${f(BORDER / 2)}" y="${f(BORDER / 2)}" `
-    + `width="${f(CARD_W - BORDER)}" height="${f(CARD_H - BORDER)}"/></clipPath><g clip-path="url(#${clip})">`;
+  // fondo de rayas y banda superior, recortados al interior del marco (o a la carta entera)
+  const inset = o.frame ? BORDER / 2 : 0;
+  svg += `<clipPath id="${clip}"><rect x="${f(inset)}" y="${f(inset)}" `
+    + `width="${f(CARD_W - 2 * inset)}" height="${f(CARD_H - 2 * inset)}"/></clipPath><g clip-path="url(#${clip})">`;
   if (!o.bw) {
     const step = 4;
     let lines = "";
