@@ -10,7 +10,7 @@ export interface Species {
 }
 
 /** CSV sencillo de PokeAPI: sin comillas con comas dentro en las columnas que usamos. */
-function parseCsv(text: string): Record<string, string>[] {
+export function parseCsv(text: string): Record<string, string>[] {
   const [head, ...rows] = text.trim().split(/\r?\n/);
   const cols = head.split(",");
   return rows.map((r) => {

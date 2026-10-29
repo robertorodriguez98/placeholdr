@@ -20,5 +20,10 @@ export const itemPixel = (slug: string) =>
 
 export const TCGDEX_API = "https://api.tcgdex.net/v2";
 
+// Fuente japonesa (M PLUS 1p Bold, licencia OFL) para los nombres de los sets japoneses, fijada
+// a un commit de google/fonts. TrueType, que es lo que admite jsPDF: 1,8 MB, se descarga solo
+// al mostrar texto japonés. Tiene todos los caracteres de los nombres de TCGdex (comprobado).
+export const CJK_FONT = "https://cdn.jsdelivr.net/gh/google/fonts@9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/mplus1p/MPLUS1p-Bold.ttf";
+
 export const WIKIDEX_API = "https://www.wikidex.net/api.php";
 export const showdownTrainer = (slug: string) => `/proxy/showdown/sprites/trainers/${slug}.png`;
