@@ -10,6 +10,7 @@ import { ItemResolver, knownItems } from "./assets/items";
 import { trainerSlug } from "./assets/busts";
 import { artJob, blobOf, bustJob, itemJob, peek, resolve } from "./assets/store";
 import * as checklist from "./checklist";
+import { UI_LANGS, applyStatic, plural, setUiLang, t, uiLang, type UiLang } from "./i18n";
 import type { CardSpec } from "./render/cards";
 import { PER_PAGE, geometry } from "./render/layout";
 import { cardInner, pageSvg, type PlacedCard } from "./render/page";
@@ -35,7 +36,7 @@ interface State {
 
 const DEFAULTS: State = {
   mode: "set", setId: "", only: ["pokemon", "trainer", "energy"], collection: "complete",
-  dexBy: "gen", gens: [1], range: "1-151", ids: "", lang: "es", paper: "a4", bw: false,
+  dexBy: "gen", gens: [1], range: "1-151", ids: "", lang: uiLang, paper: "a4", bw: false,
   cutlines: true, frame: true, hideOwned: false,
 };
 const STORE_KEY = "pokebinder:state";
@@ -67,7 +68,6 @@ const progress = $<HTMLElement>("#progress");
 const pdfBtn = $<HTMLButtonElement>("#pdf");
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 function setStatus(msg: string, error = false) {
   status.textContent = msg;
@@ -77,6 +77,21 @@ function setProgress(done: number | null, total = 1) {
   progress.hidden = done === null;
   if (done !== null) (progress.firstElementChild as HTMLElement).style.width = `${(100 * done) / total}%`;
 }
+
+// idioma de la interfaz: al cambiarlo se traducen los textos fijos y se rehace la selección
+// (nombres de colección, recuentos, sello...). No toca el idioma de las cartas.
+const uiLangBox = $<HTMLElement>(".ui-lang");
+uiLangBox.innerHTML = Object.entries(UI_LANGS).map(([k, v]) =>
+  `<button role="radio" data-lang="${k}" aria-checked="${k === uiLang}">${v}</button>`).join("");
+uiLangBox.querySelectorAll<HTMLButtonElement>("button").forEach((b) => {
+  b.onclick = () => {
+    if (b.dataset.lang === uiLang) return;
+    setUiLang(b.dataset.lang as UiLang);
+    uiLangBox.querySelectorAll("button").forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+    changed();
+  };
+});
+applyStatic();
 
 document.querySelectorAll<HTMLButtonElement>(".tabs button").forEach((b) => {
   b.onclick = () => { state.mode = b.dataset.mode as State["mode"]; changed(); };
@@ -151,7 +166,7 @@ async function initSets() {
   try {
     sets = await loadSets();
   } catch (e) {
-    setStatus(`No se pudieron cargar las ediciones: ${e}`, true);
+    setStatus(t("err.sets", { e: String(e) }), true);
     return;
   }
   setSelect.innerHTML = groupBySeries(sets).map(([series, list]) =>
@@ -181,7 +196,7 @@ interface Selection {
 async function setSelection(my: number): Promise<Selection | null> {
   if (!sets) return null;
   const set = sets.find((s) => s.id === state.setId)!;
-  setStatus(`Cargando ${set.name}…`);
+  setStatus(t("loading", { name: set.name }));
   const [cards, tr, known] = await Promise.all([
     loadSetCards(set.id),
     loadTranslations(set, state.lang).catch(() => null),
@@ -189,8 +204,8 @@ async function setSelection(my: number): Promise<Selection | null> {
   ]);
   let variants = new Map<string, Variants>();
   if (state.collection === "master") {
-    variants = await loadVariants(set, (d, t) => {
-      if (my === token) { setStatus(`Consultando variantes ${d}/${t}…`); setProgress(d, t); }
+    variants = await loadVariants(set, (d, n) => {
+      if (my === token) { setStatus(t("variants", { d, t: n })); setProgress(d, n); }
     });
     setProgress(null);
   }
@@ -229,7 +244,7 @@ async function setSelection(my: number): Promise<Selection | null> {
         : itemJob(slug, bw),
     };
   });
-  const coll = { base: "set base", complete: "set completo", master: "master set" }[state.collection];
+  const coll = t(`coll.name.${state.collection}`);
   const name = tr?.setName ?? set.name;
   return {
     kicker: `${set.ptcgoCode ?? set.id.toUpperCase()} · /${String(set.printedTotal).padStart(3, "0")}`,
@@ -241,29 +256,29 @@ async function setSelection(my: number): Promise<Selection | null> {
 }
 
 async function dexSelection(): Promise<Selection> {
-  setStatus("Cargando Pokédex…");
+  setStatus(t("dex.loading"));
   const all = await loadSpecies(state.lang);
   let sel: DexSelection, file: string, name: string;
   const pad = (n: number) => String(n).padStart(4, "0");
   if (state.dexBy === "gen") {
     sel = { by: "gen", gens: state.gens };
     file = `binder_gen${state.gens.join("-")}`;
-    name = state.gens.length ? `Generación ${state.gens.join(", ")}` : "Ninguna generación";
+    name = state.gens.length ? t("dex.gen", { g: state.gens.join(", ") }) : t("dex.noGen");
   } else if (state.dexBy === "range") {
     const r = parseRange(state.range);
-    if (!r) throw new Error("Rango no válido: usa el formato 1-151");
+    if (!r) throw new Error(t("dex.badRange"));
     sel = { by: "range", from: r[0], to: r[1] };
     file = `binder_${pad(r[0])}-${pad(r[1])}`;
     name = `#${pad(r[0])} – #${pad(r[1])}`;
   } else {
     sel = { by: "ids", ids: parseIds(state.ids) };
     file = "binder_custom";
-    name = "Selección personalizada";
+    name = t("dex.custom");
   }
   return {
     kicker: "POKÉDEX",
     name,
-    title: `Pokédex nacional · ${name}`,
+    title: t("dex.title", { name }),
     file,
     items: selectSpecies(all, sel).map((p) => ({
       key: checklist.cardKey("dex", String(p.id)),
@@ -317,17 +332,17 @@ function refreshTally() {
   const have = sel.items.filter((it) => checklist.has(it.key)).length;
   const pct = total ? Math.round((100 * have) / total) : 0;
   $("#owned-count").textContent = String(have);
-  $("#owned-of").textContent = `de ${total}`;
-  $("#owned-pct").textContent = `${pct} %`;
+  $("#owned-of").textContent = t("tally.of", { n: total });
+  $("#owned-pct").textContent = uiLang === "es" ? `${pct} %` : `${pct}%`;
   $("#owned-bar").style.width = `${pct}%`;
   const pages = Math.ceil(visible.length / PER_PAGE);
   $("#stage-pills").innerHTML =
-    `<span>${plural(visible.length, "carta", "cartas")}</span>`
-    + `<span>${plural(pages, "hoja", "hojas")}</span>`
+    `<span>${plural(visible.length, "card", "cards")}</span>`
+    + `<span>${plural(pages, "sheet", "sheets")}</span>`
     + (have ? `<span class="green">✓ ${have}/${total}</span>` : "");
   setStatus(visible.length
-    ? `${plural(visible.length, "carta", "cartas")} para imprimir en ${plural(pages, "hoja", "hojas")}`
-    : total ? "¡Las tienes todas! No queda nada por imprimir" : "No hay cartas con esta selección");
+    ? t("toPrint", { cards: plural(visible.length, "card", "cards"), sheets: plural(pages, "sheet", "sheets") })
+    : total ? t("allOwned") : t("noCards"));
   pdfBtn.disabled = !visible.length;
 }
 
@@ -344,8 +359,8 @@ function rerender() {
   observer?.disconnect();
   if (!visible.length) {
     preview.innerHTML = sel.items.length
-      ? `<p class="empty"><strong>¡Colección completa!</strong>Tienes todas las cartas de esta selección.</p>`
-      : `<p class="empty"><strong>Nada que mostrar</strong>Prueba a cambiar los filtros.</p>`;
+      ? `<p class="empty"><strong>${t("empty.complete")}</strong>${t("empty.complete.sub")}</p>`
+      : `<p class="empty"><strong>${t("empty.none")}</strong>${t("empty.none.sub")}</p>`;
     return;
   }
   const g = geometry(state.paper);
@@ -355,7 +370,7 @@ function rerender() {
     const cards = visible.slice(p * PER_PAGE, (p + 1) * PER_PAGE).map((it, k) => placed(it, p * PER_PAGE + k));
     html += `<div class="sheet" data-page="${p}" style="--n:${Math.min(p, 8)}">`
       + pageSvg(g, cards, opts, { cutlines: state.cutlines, preview: true })
-      + `<span class="label">HOJA ${p + 1} / ${pages}</span></div>`;
+      + `<span class="label">${t("sheetLabel", { p: p + 1, n: pages })}</span></div>`;
   }
   preview.innerHTML = html;
   // las imágenes se cargan cuando la hoja se acerca a la pantalla
@@ -421,8 +436,8 @@ csvFile.onchange = async () => {
   if (!file) return;
   const { added, skipped } = checklist.importCsv(await file.text());
   rerender();
-  setStatus(`Importadas ${plural(added, "carta", "cartas")}`
-    + (skipped ? ` · ${plural(skipped, "fila ignorada", "filas ignoradas")}` : ""));
+  setStatus(t("imported", { cards: plural(added, "card", "cards") })
+    + (skipped ? ` · ${plural(skipped, "row.skipped", "rows.skipped")}` : ""));
 };
 $<HTMLButtonElement>("#export-csv").onclick = () => {
   if (!current) return;
@@ -444,11 +459,11 @@ pdfBtn.onclick = async () => {
     // primero todas las imágenes (las de las hojas que aún no se han visto también)
     const jobs = visible.filter((it) => it.job);
     let done = 0;
-    setStatus("Preparando imágenes…");
+    setStatus(t("pdf.images"));
     setProgress(0, jobs.length);
     await Promise.all(jobs.map((it) => resolve(it.job!.key, it.job!.load).then(() => {
       setProgress(++done, jobs.length);
-      setStatus(`Preparando imágenes ${done}/${jobs.length}…`);
+      setStatus(t("pdf.imagesN", { d: done, t: jobs.length }));
     })));
     if (my !== token) return;
     const { buildPdf } = await import("./pdf"); // svg2pdf solo se carga al exportar
@@ -459,16 +474,16 @@ pdfBtn.onclick = async () => {
       opts,
       cutlines: state.cutlines,
       title: `${sel.title} — binder placeholders`,
-      onProgress: (p, n) => { setStatus(`Generando PDF: hoja ${p}/${n}…`); setProgress(p, n); },
+      onProgress: (p, n) => { setStatus(t("pdf.page", { p, n })); setProgress(p, n); },
     });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `${sel.file}${state.hideOwned ? "_faltan" : ""}${state.bw ? "_bw" : ""}.pdf`;
+    a.download = `${sel.file}${state.hideOwned ? "_" + t("file.missing") : ""}${state.bw ? "_bw" : ""}.pdf`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
-    setStatus(`Listo: ${a.download} (${(blob.size / 1e6).toFixed(1)} MB)`);
+    setStatus(t("pdf.done", { file: a.download, mb: (blob.size / 1e6).toFixed(1) }));
   } catch (e) {
-    setStatus(`Error al generar el PDF: ${e}`, true);
+    setStatus(t("pdf.error", { e: String(e) }), true);
     console.error(e);
   } finally {
     setProgress(null);
