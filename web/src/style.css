@@ -274,6 +274,20 @@ select:disabled { opacity: 0.6; cursor: progress; }
 }
 .guide-actions .primary { padding: 10px 26px; font-size: 13px; }
 
+/* página legal: secciones con título y lista de créditos */
+.legal-body h3 { margin: 14px 0 4px; font-size: 14px; font-weight: 800; }
+.legal-body p, .credits { margin: 0 0 8px; font-size: 13px; line-height: 1.5; }
+.credits { padding-left: 18px; }
+.credits li { margin-bottom: 3px; }
+.legal-body a { color: var(--orange); font-weight: 700; }
+.legal-body .mail { font-size: 14px; }
+.legal-links { margin: 0; padding: 10px 24px 0; text-align: center; }
+.legal-links button {
+  background: none; border: 0; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700;
+  color: rgba(255, 255, 255, 0.7); text-decoration: underline; text-underline-offset: 3px;
+}
+.legal-links button:hover { color: #fff; }
+
 /* aviso legal al pie de la vista previa */
 .legal {
   margin: 0 auto; padding: 8px 24px 28px; max-width: 760px;
