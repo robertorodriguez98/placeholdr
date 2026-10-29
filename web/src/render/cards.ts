@@ -1,4 +1,4 @@
-// Cartas portadas de pokebinder.py (draw_pokemon, draw_trainer, draw_energy).
+// Cartas Pokémon, Entrenador y Energía.
 // Cada función devuelve el SVG de una carta en coordenadas locales (0..63 × 0..88 mm).
 import { BW_INK, CARD_H, CARD_W, TRAINER_STYLE, TYPE_COLORS, type RGB } from "../config";
 import {

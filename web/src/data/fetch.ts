@@ -1,5 +1,5 @@
 // Descargas con caché persistente en el navegador (Cache Storage).
-// Equivale a .pokecache/ del CLI: lo descargado una vez se reutiliza entre sesiones.
+// Lo descargado una vez se reutiliza entre sesiones.
 
 const CACHE = "placeholdr-v1";
 
@@ -33,7 +33,7 @@ export async function fetchBlob(url: string, refresh = false): Promise<Blob> {
   return (await cached(url, refresh)).blob();
 }
 
-/** Borra toda la caché (equivale a borrar .pokecache/). */
+/** Borra toda la caché. */
 export async function clearCache(): Promise<void> {
   if ("caches" in self) await caches.delete(CACHE);
 }

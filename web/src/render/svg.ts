@@ -1,4 +1,4 @@
-// Primitivas de dibujo en SVG, portadas de pokebinder.py.
+// Primitivas de dibujo en SVG.
 // Unidades: milímetros, eje Y hacia abajo y origen en la esquina superior izquierda de la
 // carta (el CLI usaba puntos con el eje Y hacia arriba). Los tamaños de letra siguen en pt.
 import { jsPDF } from "jspdf";

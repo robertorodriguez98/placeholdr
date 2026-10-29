@@ -32,8 +32,6 @@ npm run build    # static files in web/dist
 
 Or with Docker (nginx serving the build): `docker compose up -d --build` → http://localhost:8080
 
-`pokebinder.py` is the original Python CLI. It's frozen and kept only as a reference.
-
 ## Data sources and credits
 
 - Card lists: [PokemonTCG/pokemon-tcg-data](https://github.com/PokemonTCG/pokemon-tcg-data)
