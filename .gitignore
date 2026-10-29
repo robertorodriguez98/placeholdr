@@ -1,2 +1,4 @@
 # PDFs generados
 *.pdf
+# notas personales para Claude Code
+CLAUDE.local.md
