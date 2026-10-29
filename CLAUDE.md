@@ -102,8 +102,9 @@ reproduce el diseño del CLI.
 - **Legal, privacidad y créditos:** botón al pie de la vista previa que abre otro `<dialog>`
   como el de la guía (claves `legalpage.*` y `credits.*`). Incluye: proyecto de fans no oficial
   y que las imágenes son de sus dueños (las carga el navegador, Placeholdr no las aloja);
-  uso personal y no comercial; contacto para titulares de derechos (`krowno.iso@gmail.com`,
-  que `main.ts` monta en tiempo de ejecución para que no esté entero en el HTML); privacidad
+  uso personal y no comercial; contacto para titulares de derechos (`contact@placeholdr.org`,
+  que `main.ts` monta en tiempo de ejecución para que no esté entero en el HTML; Email Routing
+  de Cloudflare lo reenvía a `krowno.iso@gmail.com`); privacidad
   (sin cookies ni analítica, `localStorage`, y a qué servicios se conecta el navegador); y
   créditos con licencias (pokemon-tcg-data, que no declara licencia; TCGdex, MIT; PokeAPI,
   BSD-3 en datos e imágenes de Nintendo; WikiDex; M PLUS 1p, OFL; jsPDF y svg2pdf.js, MIT).
