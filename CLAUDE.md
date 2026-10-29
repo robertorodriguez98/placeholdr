@@ -47,7 +47,7 @@ reproduce el diseño del CLI.
   CSV: `coleccion,numero,variante,nombre`, separado por comas, punto y coma o tabuladores.
   Hay botones para marcar o desmarcar todas las cartas de la selección. Está en `src/checklist.ts`.
 - **Apariencia:** la interfaz imita una carta de Partidario. El panel lateral es la propia
-  carta: marco negro, banda naranja "ENTRENADOR / POKEBINDER", rayas, título subrayado y un
+  carta: marco negro, banda naranja con la pastilla "POKEBINDER" y el selector EN/ES, rayas, título subrayado y un
   medallón con un binder. Los títulos de sección son pastillas negras, como el número de
   colección, y los botones tienen sombra dura. La vista previa va sobre una "tapa de binder"
   oscura, con una barra naranja fija y las hojas de dos en dos, como un binder abierto. Los
@@ -63,7 +63,7 @@ reproduce el diseño del CLI.
 - **Bordes negros** (por defecto, interruptor en "Impresión"): si se desactiva, `cardFrame` no
   dibuja el marco y el fondo de la carta (rayas y banda de los Entrenadores incluidas) llega
   hasta el borde, que se recorta por la discontinua. Va en `RenderOpts.frame`.
-- **Idioma de la interfaz:** pastilla EN/ES en la banda naranja. Por defecto, inglés. La
+- **Idioma de la interfaz:** pastilla EN/ES a la derecha de la banda naranja. Por defecto, inglés. La
   elección se guarda en `localStorage` (`pokebinder:ui-lang`), igual que el resto del estado;
   no hace falta una cookie porque no hay servidor que tenga que leerla. Es **independiente del
   idioma de las cartas** (selector "Idioma de las cartas", con es/en/fr/de/it), que es lo que

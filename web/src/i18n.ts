@@ -13,7 +13,6 @@ const KEY = "pokebinder:ui-lang";
 const STRINGS = {
   en: {
     "doc.title": "pokebinder · binder placeholders",
-    "band.kicker": "TRAINER",
     "hero": "Placeholders for your binder",
     "ui.lang": "Interface language",
     "mode": "Mode",
@@ -90,7 +89,6 @@ const STRINGS = {
   },
   es: {
     "doc.title": "pokebinder · placeholders para tu binder",
-    "band.kicker": "ENTRENADOR",
     "hero": "Placeholders para tu binder",
     "ui.lang": "Idioma de la interfaz",
     "mode": "Modo",
