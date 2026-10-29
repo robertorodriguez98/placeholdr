@@ -137,6 +137,7 @@
       </header>
       <div id="preview" class="preview"></div>
       <p class="support"><a href="https://ko-fi.com/krowno16" target="_blank" rel="noopener" data-i18n="support">Placeholdr is free and will stay free. If it&#x27;s useful to you, you can help cover the domain and server on Ko-fi ☕</a></p>
+      <p class="legal-links"><button id="legal-open" data-i18n="legalpage.open">Legal, privacy &amp; credits</button></p>
       <p class="legal" data-i18n="legal">Unofficial fan project. Not affiliated with, sponsored or endorsed by Nintendo, Creatures Inc., GAME FREAK or The Pokémon Company. Pokémon and card names are trademarks of their respective owners.</p>
     </main>
 
@@ -159,6 +160,36 @@
       <form method="dialog" class="guide-actions">
         <a class="donate" href="https://ko-fi.com/krowno16" target="_blank" rel="noopener" data-i18n="donate">☕ Help cover hosting</a>
         <button class="primary" data-i18n="guide.close">Got it</button>
+      </form>
+    </dialog>
+
+    <!-- Legal, privacidad y créditos: el mismo diálogo que la guía -->
+    <dialog id="legal" class="guide" aria-labelledby="legal-title">
+      <header class="band"><span class="band-pill">PLACEHOLDR</span></header>
+      <div class="guide-body legal-body">
+        <h2 id="legal-title" data-i18n="legalpage.title">Legal, privacy &amp; credits</h2>
+        <h3 data-i18n="legalpage.fan.t">Unofficial fan project</h3>
+        <p data-i18n="legalpage.fan.p">Placeholdr is not affiliated with, sponsored or endorsed by Nintendo, Creatures Inc., GAME FREAK or The Pokémon Company. Pokémon, card and character names are trademarks of their respective owners and are only used to describe the cards. Pokémon artwork, trainer illustrations and item icons belong to their owners: your browser loads them directly from the public sources listed below, and Placeholdr doesn&#x27;t host them. Placeholdr never reproduces card scans or card illustrations: its placeholders are an original design.</p>
+        <h3 data-i18n="legalpage.use.t">Personal use</h3>
+        <p data-i18n="legalpage.use.p">Placeholdr is free and is meant for printing placeholders for your own binder. Please don&#x27;t sell them or use them commercially. Donations on Ko-fi only cover the domain and the server, and don&#x27;t unlock anything.</p>
+        <h3 data-i18n="legalpage.contact.t">Rights holders and contact</h3>
+        <p data-i18n="legalpage.contact.p">If you hold rights over any content shown here and want it removed, or you have any other question, write to this address and it will be dealt with promptly:</p>
+        <p><a class="mail" id="contact-mail"></a></p>
+        <h3 data-i18n="legalpage.privacy.t">Privacy</h3>
+        <p data-i18n="legalpage.privacy.p">No account, no cookies, no analytics and no ads. Your checklist and settings are only stored in this browser (localStorage) and never leave it. To work, your browser connects directly to the services listed below (GitHub, TCGdex, WikiDex and jsDelivr), which receive your IP address like any website you visit. Ko-fi only comes into play if you open its link.</p>
+        <h3 data-i18n="legalpage.credits.t">Credits</h3>
+        <ul class="credits">
+          <li><span data-i18n="credits.cards">Card lists</span>: <a href="https://github.com/PokemonTCG/pokemon-tcg-data" target="_blank" rel="noopener">PokemonTCG/pokemon-tcg-data</a></li>
+          <li><span data-i18n="credits.tcgdex">Translations, variants and Japanese sets</span>: <a href="https://tcgdex.dev" target="_blank" rel="noopener">TCGdex</a> (MIT)</li>
+          <li><span data-i18n="credits.pokeapi">Species, artwork and item icons</span>: <a href="https://pokeapi.co" target="_blank" rel="noopener">PokeAPI</a> (<span data-i18n="credits.pokeapi.note">data under BSD-3-Clause; images © Nintendo, Creatures, GAME FREAK</span>)</li>
+          <li><span data-i18n="credits.wikidex">Trainer illustrations</span>: <a href="https://www.wikidex.net" target="_blank" rel="noopener">WikiDex</a></li>
+          <li><span data-i18n="credits.font">Japanese font</span>: <a href="https://fonts.google.com/specimen/M+PLUS+1p" target="_blank" rel="noopener">M PLUS 1p, The M+ Project Authors</a> (SIL Open Font License 1.1)</li>
+          <li><span data-i18n="credits.pdf">PDF generation</span>: <a href="https://github.com/parallax/jsPDF" target="_blank" rel="noopener">jsPDF · svg2pdf.js</a> (MIT)</li>
+        </ul>
+      </div>
+      <form method="dialog" class="guide-actions">
+        <a class="donate" href="https://ko-fi.com/krowno16" target="_blank" rel="noopener" data-i18n="donate">☕ Help cover hosting</a>
+        <button class="primary" data-i18n="legalpage.close">Close</button>
       </form>
     </dialog>
     <script type="module" src="/src/main.ts"></script>
