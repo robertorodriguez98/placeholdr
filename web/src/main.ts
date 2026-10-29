@@ -29,7 +29,6 @@ interface State {
   paper: Paper;
   bw: boolean;
   cutlines: boolean;
-  compact: boolean;   // cartas juntas, sin hueco: menos cortes
   frame: boolean;     // marco negro de las cartas
   hideOwned: boolean; // checklist: imprimir solo las que faltan
 }
@@ -37,7 +36,7 @@ interface State {
 const DEFAULTS: State = {
   mode: "set", setId: "", only: ["pokemon", "trainer", "energy"], collection: "complete",
   dexBy: "gen", gens: [1], range: "1-151", ids: "", lang: "es", paper: "a4", bw: false,
-  cutlines: true, compact: true, frame: true, hideOwned: false,
+  cutlines: true, frame: true, hideOwned: false,
 };
 const STORE_KEY = "pokebinder:state";
 
@@ -92,8 +91,6 @@ const bwChk = $<HTMLInputElement>("#bw");
 bwChk.onchange = () => { state.bw = bwChk.checked; changed(); };
 const cutChk = $<HTMLInputElement>("#cutlines");
 cutChk.onchange = () => { state.cutlines = cutChk.checked; changed(); };
-const compactChk = $<HTMLInputElement>("#compact");
-compactChk.onchange = () => { state.compact = compactChk.checked; changed(); };
 const frameChk = $<HTMLInputElement>("#frame");
 frameChk.onchange = () => { state.frame = frameChk.checked; changed(); };
 const hideChk = $<HTMLInputElement>("#hide-owned");
@@ -133,7 +130,6 @@ function syncControls() {
   paperSel.value = state.paper;
   bwChk.checked = state.bw;
   cutChk.checked = state.cutlines;
-  compactChk.checked = state.compact;
   frameChk.checked = state.frame;
   hideChk.checked = state.hideOwned;
   if (sets) setSelect.value = state.setId;
@@ -352,7 +348,7 @@ function rerender() {
       : `<p class="empty"><strong>Nada que mostrar</strong>Prueba a cambiar los filtros.</p>`;
     return;
   }
-  const g = geometry(state.paper, state.compact);
+  const g = geometry(state.paper);
   const pages = Math.ceil(visible.length / PER_PAGE);
   let html = "";
   for (let p = 0; p < pages; p++) {
@@ -459,7 +455,7 @@ pdfBtn.onclick = async () => {
     const blob = await buildPdf({
       cards: visible.map(placed),
       blobOf,
-      geometry: geometry(state.paper, state.compact),
+      geometry: geometry(state.paper),
       opts,
       cutlines: state.cutlines,
       title: `${sel.title} — binder placeholders`,
