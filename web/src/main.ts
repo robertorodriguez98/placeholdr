@@ -44,7 +44,7 @@ interface State {
 const DEFAULTS: State = {
   mode: "set", region: "intl", setId: "", setIdJa: "", only: ["pokemon", "trainer", "energy"], collection: "complete",
   dexBy: "gen", gens: [1], range: "1-151", ids: "", lang: uiLang, paper: "a4", bw: false,
-  cutlines: true, frame: true, images: true, hideOwned: false,
+  cutlines: true, frame: false, images: true, hideOwned: false,
 };
 const STORE_KEY = "placeholdr:state";
 

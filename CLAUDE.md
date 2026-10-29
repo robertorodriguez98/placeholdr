@@ -85,7 +85,8 @@ reproduce el diseño del CLI.
   corte") van encima de las cartas: marcas en el margen en la prolongación de cada corte y,
   según el marco, una línea blanca fina en el centro de la banda negra entre dos cartas o una
   discontinua gris oscura por el borde. Está en `src/render/layout.ts`.
-- **Bordes negros** (por defecto, interruptor en "Impresión"): si se desactiva, `cardFrame` no
+- **Bordes negros** (interruptor en "Impresión", desactivado por defecto; por defecto solo están
+  activadas "Líneas de corte" e "Imágenes"): sin ellos, `cardFrame` no
   dibuja el marco y el fondo de la carta (rayas y banda de los Entrenadores incluidas) llega
   hasta el borde, que se recorta por la discontinua. Va en `RenderOpts.frame`.
 - **Nombre y aviso legal:** el nombre no lleva "Poké" ni "Pokémon" para no usar la marca como
