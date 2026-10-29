@@ -8,12 +8,12 @@
 export const UI_LANGS = { en: "EN", es: "ES" } as const;
 export type UiLang = keyof typeof UI_LANGS;
 
-const KEY = "pokebinder:ui-lang";
+const KEY = "placeholdr:ui-lang";
 
 const STRINGS = {
   en: {
-    "doc.title": "pokebinder · binder placeholders",
-    "hero": "Placeholders for your binder",
+    "doc.title": "Placeholdr · Binder placeholders for Pokémon TCG cards",
+    "hero": "Fill the gaps in your Pokémon TCG binder",
     "ui.lang": "Interface language",
     "mode": "Mode",
     "mode.set": "Set",
@@ -86,10 +86,11 @@ const STRINGS = {
     "pdf.done": "Done: {file} ({mb} MB)",
     "pdf.error": "Error generating the PDF: {e}",
     "file.missing": "missing",
+    "legal": "Unofficial fan project. Not affiliated with, sponsored or endorsed by Nintendo, Creatures Inc., GAME FREAK or The Pokémon Company. Pokémon and card names are trademarks of their respective owners.",
   },
   es: {
-    "doc.title": "pokebinder · placeholders para tu binder",
-    "hero": "Placeholders para tu binder",
+    "doc.title": "Placeholdr · Placeholders de binder para cartas Pokémon TCG",
+    "hero": "Rellena los huecos de tu binder de Pokémon TCG",
     "ui.lang": "Idioma de la interfaz",
     "mode": "Modo",
     "mode.set": "Edición",
@@ -162,6 +163,7 @@ const STRINGS = {
     "pdf.done": "Listo: {file} ({mb} MB)",
     "pdf.error": "Error al generar el PDF: {e}",
     "file.missing": "faltan",
+    "legal": "Proyecto de fans no oficial. Sin relación con Nintendo, Creatures Inc., GAME FREAK ni The Pokémon Company, ni patrocinado ni respaldado por ellos. Pokémon y los nombres de las cartas son marcas de sus respectivos propietarios.",
   },
 } satisfies Record<UiLang, Record<string, string>>;
 

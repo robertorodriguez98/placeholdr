@@ -4,19 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#dc5c33" />
-    <title>pokebinder</title>
+    <title>Placeholdr · Binder placeholders for Pokémon TCG cards</title>
+    <meta name="description" content="Free printable binder placeholders for Pokémon TCG cards: pick a set or Pokédex range, track what you own and download a PDF to print and cut. Runs entirely in your browser." />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='2' width='26' height='28' rx='3' fill='%23fff' stroke='%23000' stroke-width='3'/%3E%3Crect x='3' y='2' width='26' height='8' fill='%23dc5c33' stroke='%23000' stroke-width='3'/%3E%3Ccircle cx='16' cy='19' r='5' fill='%23f6d4c7' stroke='%23dc5c33' stroke-width='2'/%3E%3C/svg%3E" />
   </head>
   <body>
     <aside class="panel">
       <!-- El panel es una carta de Partidario: banda, título subrayado y medallón -->
       <header class="band">
-        <span class="band-pill">POKEBINDER</span>
+        <span class="band-pill">PLACEHOLDR</span>
         <div class="ui-lang" role="radiogroup" data-i18n-aria="ui.lang" aria-label="Interface language"></div>
       </header>
       <div class="panel-body">
         <div class="hero">
-          <h1 data-i18n="hero">Placeholders for your binder</h1>
+          <h1 data-i18n="hero">Fill the gaps in your Pokémon TCG binder</h1>
           <div class="medallion" aria-hidden="true">
             <svg viewBox="0 0 64 64">
               <rect x="13" y="10" width="38" height="46" rx="4" fill="#fff" stroke="#16181d" stroke-width="3.5"/>
@@ -121,6 +122,7 @@
         <div class="stage-pills" id="stage-pills"></div>
       </header>
       <div id="preview" class="preview"></div>
+      <p class="legal" data-i18n="legal">Unofficial fan project. Not affiliated with, sponsored or endorsed by Nintendo, Creatures Inc., GAME FREAK or The Pokémon Company. Pokémon and card names are trademarks of their respective owners.</p>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
