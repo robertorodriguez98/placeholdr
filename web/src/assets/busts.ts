@@ -1,8 +1,10 @@
-// Bustos de Partidarios (TrainerBusts del CLI): WikiDex y, si no, sprites de Showdown.
+// Bustos de Partidarios (TrainerBusts del CLI), desde WikiDex. Si no hay ilustración, el
+// Partidario usa su objeto. Los sprites de Showdown se quitaron: necesitaban un proxy con
+// caché, y así el servidor no guarda ni sirve ninguna imagen de terceros.
 // bustos.json (raíz del repo, compartido con el CLI) fuerza la página/URL y ajusta el encuadre.
 import bustMap from "../../../bustos.json";
 import { fetchJson } from "../data/fetch";
-import { WIKIDEX_API, showdownTrainer } from "../data/sources";
+import { WIKIDEX_API } from "../data/sources";
 import type { BustAdjust } from "./images";
 
 export interface BustEntry extends BustAdjust { page?: string; url?: string }
@@ -76,5 +78,5 @@ export async function findBust(nameEn: string, name: string): Promise<[string, b
   } catch (e) {
     console.warn(`WikiDex no disponible para '${title}'`, e);
   }
-  return [showdownTrainer(trainerSlug(nameEn)), true, "Showdown"];
+  return null;
 }

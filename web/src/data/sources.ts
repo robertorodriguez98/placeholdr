@@ -1,5 +1,5 @@
-// URLs de las fuentes de datos. Todas responden con CORS abierto salvo Showdown,
-// que pasa por el proxy de nginx (/proxy/showdown/) en el contenedor.
+// URLs de las fuentes de datos. Todas responden con CORS abierto: el navegador de cada usuario
+// las descarga directamente, y el servidor de Placeholdr solo sirve los ficheros de la web.
 
 const RAW = "https://raw.githubusercontent.com";
 
@@ -26,4 +26,3 @@ export const TCGDEX_API = "https://api.tcgdex.net/v2";
 export const CJK_FONT = "https://cdn.jsdelivr.net/gh/google/fonts@9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/mplus1p/MPLUS1p-Bold.ttf";
 
 export const WIKIDEX_API = "https://www.wikidex.net/api.php";
-export const showdownTrainer = (slug: string) => `/proxy/showdown/sprites/trainers/${slug}.png`;
