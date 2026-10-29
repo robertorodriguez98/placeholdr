@@ -109,6 +109,13 @@ reproduce el diseño del CLI.
   créditos con licencias (pokemon-tcg-data, que no declara licencia; TCGdex, MIT; PokeAPI,
   BSD-3 en datos e imágenes de Nintendo; WikiDex; M PLUS 1p, OFL; jsPDF y svg2pdf.js, MIT).
   Si se añade una fuente de datos nueva, hay que añadirla a créditos y a privacidad.
+- **Licencia y README:** el código es **AGPL-3.0-only** (`LICENSE`, campo `license` de
+  `web/package.json`): quien publique una versión modificada, también como web, tiene que
+  publicar su código con la misma licencia. No cubre los datos ni las imágenes de las fuentes.
+  El `README.md` (en inglés) resume qué es, cómo ejecutarlo, créditos, aviso legal, licencia y
+  Ko-fi; si cambian las fuentes o las funciones, hay que actualizarlo junto con la página legal.
+  Los commits usan el correo noreply de GitHub (el historial se reescribió el 2026-10-29 para
+  quitar el Gmail personal).
 - **Donaciones:** Ko-fi (`https://ko-fi.com/krowno16`), solo para pagar el dominio y el
   servidor. Son enlaces normales, sin el widget de Ko-fi, para no cargar scripts de terceros
   que rastreen: uno discreto bajo "Descargar PDF", otro al pie de la vista previa y otro en la
