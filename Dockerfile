@@ -1,6 +1,6 @@
 # Placeholdr: compila con Node y sirve los estáticos con nginx.
 # Todo el trabajo (descargas, imágenes, PDF) ocurre en el navegador del usuario;
-# nginx solo sirve ficheros y hace de proxy con caché para Showdown (sin CORS).
+# nginx solo sirve los ficheros estáticos.
 #
 #   docker build -t placeholdr .
 #   docker run -d -p 8080:80 placeholdr     ->  http://localhost:8080
