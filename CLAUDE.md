@@ -13,8 +13,9 @@ Hay dos implementaciones:
   no recibe cambios. Todo lo nuevo va a la web. El resto de este documento, salvo la sección
   "Aplicación web", describe el CLI, que sirve de referencia para portar el diseño.
 
-El usuario (Roberto) habla en español; la UI, los mensajes de consola y los comentarios están
-en español. Prefiere instrucciones directas, comando a comando, y que se explique el porqué
+El usuario (Roberto) habla en español; los mensajes de consola y los comentarios están en
+español. La interfaz de la web está en inglés por defecto, con español como alternativa
+(`src/i18n.ts`). Prefiere instrucciones directas, comando a comando, y que se explique el porqué
 cuando aporta. Trabajamos con una rama y un pull request por cambio
 (`gh pr create` / `gh pr merge --merge --delete-branch`).
 
@@ -62,6 +63,17 @@ reproduce el diseño del CLI.
 - **Bordes negros** (por defecto, interruptor en "Impresión"): si se desactiva, `cardFrame` no
   dibuja el marco y el fondo de la carta (rayas y banda de los Entrenadores incluidas) llega
   hasta el borde, que se recorta por la discontinua. Va en `RenderOpts.frame`.
+- **Idioma de la interfaz:** pastilla EN/ES en la banda naranja. Por defecto, inglés. La
+  elección se guarda en `localStorage` (`pokebinder:ui-lang`), igual que el resto del estado;
+  no hace falta una cookie porque no hay servidor que tenga que leerla. Es **independiente del
+  idioma de las cartas** (selector "Idioma de las cartas", con es/en/fr/de/it), que es lo que
+  sale impreso; ese, en la primera visita, toma el idioma de la interfaz. Los textos están en
+  `STRINGS` de `src/i18n.ts`: en el HTML se marcan con `data-i18n` (texto), `data-i18n-title`
+  y `data-i18n-aria`, y en el código se piden con `t("clave", {param})` y `plural(n, "card",
+  "cards")`. El sello "LA TENGO"/"GOT IT" va en el idioma de la interfaz porque solo se ve en
+  pantalla. El CSV del checklist mantiene la cabecera en español; al importar se aceptan
+  `coleccion` y `collection`. Para añadir un idioma: una entrada en `UI_LANGS` y su bloque en
+  `STRINGS` (TypeScript avisa si falta alguna clave).
 - **PDF:** botón "Descargar PDF". Primero resuelve todas las imágenes y después convierte cada
   hoja con `svg2pdf.js`, que se carga solo al exportar. Las URL `blob:` pasan a data URL.
 - **Docker:** `docker compose up -d --build` → http://localhost:8080. La imagen es multi-etapa
@@ -98,6 +110,7 @@ Claude in Chrome: el usuario navega con Firefox, pero instaló Chrome solo para 
   (cola de 6 trabajos y caché por clave).
 - `src/pdf.ts`: jsPDF + svg2pdf.js.
 - `src/checklist.ts`: cartas que tienes (localStorage y CSV).
+- `src/i18n.ts`: textos de la interfaz en inglés y español, `t()`, `plural()` y `applyStatic()`.
 - `src/main.ts`: estado de la UI (`localStorage`), selección, vista previa y botón de PDF.
 - Raíz del repo: `Dockerfile`, `docker/nginx.conf`, `compose.yaml` y `.dockerignore`.
 

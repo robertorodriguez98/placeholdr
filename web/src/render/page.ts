@@ -5,6 +5,7 @@ import { CARD_H, CARD_W } from "../config";
 import { BORDER, drawCard, type Asset, type CardSpec } from "./cards";
 import { cutlines, pockets, slot, type PageGeometry } from "./layout";
 import { FONT, PT, num as f, type RenderOpts } from "./svg";
+import { t } from "../i18n";
 
 export interface PlacedCard { spec: CardSpec; asset: Asset; index: number; owned?: boolean }
 
@@ -12,10 +13,10 @@ export interface PageOpts { cutlines: boolean; preview: boolean }
 
 const GREEN = "rgb(51,153,102)"; // el verde de los Estadios
 
-/** Sello de goma "LA TENGO" sobre un velo blanco (solo vista previa). */
-function ownedStamp(lang: string): string {
+/** Sello de goma "LA TENGO" sobre un velo blanco (solo vista previa, en el idioma de la interfaz). */
+function ownedStamp(): string {
   const cx = CARD_W / 2, cy = CARD_H / 2 + 2;
-  const label = lang === "es" ? "LA TENGO" : "GOT IT";
+  const label = t("stamp");
   return `<g class="owned-stamp" pointer-events="none">`
     + `<rect x="${f(BORDER)}" y="${f(BORDER)}" width="${f(CARD_W - 2 * BORDER)}" height="${f(CARD_H - 2 * BORDER)}" fill="#fff" fill-opacity="0.62"/>`
     + `<g transform="translate(${f(cx)} ${f(cy)}) rotate(-14)">`
@@ -29,7 +30,7 @@ function ownedStamp(lang: string): string {
 
 /** Contenido de una carta: el dibujo y, en la vista previa, el sello si ya la tienes. */
 export function cardInner(c: PlacedCard, o: RenderOpts, preview: boolean): string {
-  return drawCard(c.spec, c.asset, o, String(c.index)) + (preview && c.owned ? ownedStamp(o.lang) : "");
+  return drawCard(c.spec, c.asset, o, String(c.index)) + (preview && c.owned ? ownedStamp() : "");
 }
 
 /** <g> de una carta en su hueco; `index` es global para que los id de clipPath no choquen. */
