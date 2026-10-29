@@ -1,5 +1,7 @@
-// Maquetación: 3×3 cartas centradas en la hoja con líneas de corte (draw_cutlines/render del CLI).
-import { CARD_H, CARD_W, COLS, GAP, PAPER, ROWS, type Paper } from "../config";
+// Maquetación: 3×3 cartas centradas en la hoja, pegadas unas a otras. Sin hueco, cada corte
+// separa dos cartas a la vez: 8 cortes por hoja (4 + 4) en vez de los 12 que hacían falta con
+// el hueco de 2 mm del CLI, y no quedan tiras sueltas.
+import { CARD_H, CARD_W, COLS, PAPER, ROWS, type Paper } from "../config";
 import { PT, num as f, type RenderOpts } from "./svg";
 
 export const PER_PAGE = COLS * ROWS;
@@ -12,29 +14,49 @@ export interface PageGeometry {
 
 export function geometry(paper: Paper): PageGeometry {
   const [pw, ph] = PAPER[paper];
-  const gw = COLS * CARD_W + (COLS - 1) * GAP;
-  const gh = ROWS * CARD_H + (ROWS - 1) * GAP;
+  const gw = COLS * CARD_W, gh = ROWS * CARD_H;
   return { pw, ph, gw, gh, ox: (pw - gw) / 2, oy: (ph - gh) / 2 };
 }
 
 /** Posición (mm) de la carta k (0..8) dentro de la página. */
 export function slot(g: PageGeometry, k: number): [number, number] {
   const col = k % COLS, row = Math.floor(k / COLS);
-  return [g.ox + col * (CARD_W + GAP), g.oy + row * (CARD_H + GAP)];
+  return [g.ox + col * CARD_W, g.oy + row * CARD_H];
 }
 
-export function cutlines(g: PageGeometry, o: RenderOpts): string {
+/** Recorre las líneas de la cuadrícula: `inner` solo las juntas entre cartas, si no también el contorno. */
+function gridPath(g: PageGeometry, inner: boolean): string {
+  const a = inner ? 1 : 0;
   let d = "";
-  for (let i = 1; i < COLS; i++) {
-    const x = g.ox + i * (CARD_W + GAP) - GAP / 2;
-    d += `M${f(x)} ${f(g.oy - 3)}V${f(g.oy + g.gh + 3)}`;
-  }
-  for (let j = 1; j < ROWS; j++) {
-    const y = g.oy + j * (CARD_H + GAP) - GAP / 2;
-    d += `M${f(g.ox - 3)} ${f(y)}H${f(g.ox + g.gw + 3)}`;
-  }
+  for (let i = a; i <= COLS - a; i++) d += `M${f(g.ox + i * CARD_W)} ${f(g.oy)}V${f(g.oy + g.gh)}`;
+  for (let j = a; j <= ROWS - a; j++) d += `M${f(g.ox)} ${f(g.oy + j * CARD_H)}H${f(g.ox + g.gw)}`;
+  return d;
+}
+
+/**
+ * Guías de corte, dibujadas encima de las cartas. Siempre hay marcas en el margen en la
+ * prolongación de cada corte (como las de imprenta), para alinear la regla o la guillotina.
+ *   - Con marco: los bordes de dos cartas forman una banda negra; una línea blanca fina en
+ *     su centro marca el corte exacto, y la banda da margen de error.
+ *   - Sin marco: una línea discontinua gris oscura por el borde de cada carta.
+ */
+export function cutlines(g: PageGeometry, o: RenderOpts): string {
   const col = o.bw ? "rgb(140,140,140)" : "rgb(115,115,204)";
-  return `<path d="${d}" stroke="${col}" stroke-width="${f(0.4 * PT)}" `
+  const off = 1.5, len = 7; // separación respecto a la cuadrícula y largo de la marca (mm)
+  let d = "";
+  for (let i = 0; i <= COLS; i++) {
+    const x = g.ox + i * CARD_W;
+    d += `M${f(x)} ${f(g.oy - off - len)}V${f(g.oy - off)}`
+      + `M${f(x)} ${f(g.oy + g.gh + off)}V${f(g.oy + g.gh + off + len)}`;
+  }
+  for (let j = 0; j <= ROWS; j++) {
+    const y = g.oy + j * CARD_H;
+    d += `M${f(g.ox - off - len)} ${f(y)}H${f(g.ox - off)}`
+      + `M${f(g.ox + g.gw + off)} ${f(y)}H${f(g.ox + g.gw + off + len)}`;
+  }
+  const marks = `<path d="${d}" stroke="${col}" stroke-width="${f(0.5 * PT)}" fill="none"/>`;
+  if (o.frame) return marks + `<path d="${gridPath(g, true)}" stroke="#fff" stroke-width="${f(0.6 * PT)}" fill="none"/>`;
+  return marks + `<path d="${gridPath(g, false)}" stroke="rgb(70,70,70)" stroke-width="${f(0.6 * PT)}" `
     + `stroke-dasharray="${f(3 * PT)} ${f(2 * PT)}" fill="none"/>`;
 }
 
