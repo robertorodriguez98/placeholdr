@@ -1,6 +1,7 @@
-# pokebinder — handover
+# Placeholdr — handover
 
-Generador de **placeholders imprimibles (PDF)** para un binder de Pokémon TCG: tarjetas de
+**Placeholdr** (antes *pokebinder*; se renombró para no usar la marca "Poké" en el nombre) es un
+generador de **placeholders imprimibles (PDF)** para un binder de Pokémon TCG: tarjetas de
 63×88 mm (tamaño carta TCG), 9 por página A4 (3×3) con líneas de corte, pensadas para meter
 en los bolsillos del binder mientras falta la carta real.
 
@@ -43,11 +44,11 @@ reproduce el diseño del CLI.
   sello verde "LA TENGO", que solo se ve en pantalla. Con "Imprimir solo las que faltan" se
   quitan de la vista previa y del PDF; el fichero se llama `*_faltan.pdf`. Cada carta se
   identifica como `coleccion:numero[:variante]` (`me5:77`, `me5:1:REVERSE`, `dex:25`). Las
-  marcas se guardan en `localStorage` (`pokebinder:owned`) y se pueden exportar o importar en
+  marcas se guardan en `localStorage` (`placeholdr:owned`) y se pueden exportar o importar en
   CSV: `coleccion,numero,variante,nombre`, separado por comas, punto y coma o tabuladores.
   Hay botones para marcar o desmarcar todas las cartas de la selección. Está en `src/checklist.ts`.
 - **Apariencia:** la interfaz imita una carta de Partidario. El panel lateral es la propia
-  carta: marco negro, banda naranja con la pastilla "POKEBINDER" y el selector EN/ES, rayas, título subrayado y un
+  carta: marco negro, banda naranja con la pastilla "PLACEHOLDR" y el selector EN/ES, rayas, título subrayado y un
   medallón con un binder. Los títulos de sección son pastillas negras, como el número de
   colección, y los botones tienen sombra dura. La vista previa va sobre una "tapa de binder"
   oscura, con una barra naranja fija y las hojas de dos en dos, como un binder abierto. Los
@@ -63,8 +64,15 @@ reproduce el diseño del CLI.
 - **Bordes negros** (por defecto, interruptor en "Impresión"): si se desactiva, `cardFrame` no
   dibuja el marco y el fondo de la carta (rayas y banda de los Entrenadores incluidas) llega
   hasta el borde, que se recorta por la discontinua. Va en `RenderOpts.frame`.
+- **Nombre y aviso legal:** el nombre no lleva "Poké" ni "Pokémon" para no usar la marca como
+  propia; "Pokémon" solo aparece de forma descriptiva (título de la pestaña: "Placeholdr ·
+  Binder placeholders for Pokémon TCG cards"; titular del panel: "Fill the gaps in your
+  Pokémon TCG binder"). Al pie de la vista previa va el aviso de proyecto de fans sin relación
+  con Nintendo, Creatures, GAME FREAK ni The Pokémon Company (clave `legal`). Nada de imitar el
+  logo ni la tipografía de Pokémon. `src/migrate.ts` copia las claves antiguas `pokebinder:*`
+  a `placeholdr:*` y borra la caché `pokebinder-v1`.
 - **Idioma de la interfaz:** pastilla EN/ES a la derecha de la banda naranja. Por defecto, inglés. La
-  elección se guarda en `localStorage` (`pokebinder:ui-lang`), igual que el resto del estado;
+  elección se guarda en `localStorage` (`placeholdr:ui-lang`), igual que el resto del estado;
   no hace falta una cookie porque no hay servidor que tenga que leerla. Es **independiente del
   idioma de las cartas** (selector "Idioma de las cartas", con es/en/fr/de/it), que es lo que
   sale impreso; ese, en la primera visita, toma el idioma de la interfaz. Los textos están en
@@ -87,7 +95,7 @@ Docker necesita un `DOCKER_CONFIG` temporal porque falta `docker-credential-desk
 memoria del usuario).
 ```bash
 # servidor de desarrollo en http://localhost:5173 (con recarga en caliente)
-docker run -d --rm --name pokebinder-dev -p 5173:5173 -v "<repo>:/repo" -w /repo/web node:22-alpine npm run dev
+docker run -d --rm --name placeholdr-dev -p 5173:5173 -v "<repo>:/repo" -w /repo/web node:22-alpine npm run dev
 # compilar (tsc + vite build -> web/dist)
 docker run --rm -v "<repo>:/repo" -w /repo/web node:22-alpine sh -c "npm install && npm run build"
 ```
@@ -110,6 +118,7 @@ Claude in Chrome: el usuario navega con Firefox, pero instaló Chrome solo para 
   (cola de 6 trabajos y caché por clave).
 - `src/pdf.ts`: jsPDF + svg2pdf.js.
 - `src/checklist.ts`: cartas que tienes (localStorage y CSV).
+- `src/migrate.ts`: pasa los datos guardados con el nombre antiguo (se importa la primera).
 - `src/i18n.ts`: textos de la interfaz en inglés y español, `t()`, `plural()` y `applyStatic()`.
 - `src/main.ts`: estado de la UI (`localStorage`), selección, vista previa y botón de PDF.
 - Raíz del repo: `Dockerfile`, `docker/nginx.conf`, `compose.yaml` y `.dockerignore`.

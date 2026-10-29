@@ -1,7 +1,7 @@
 // Descargas con caché persistente en el navegador (Cache Storage).
 // Equivale a .pokecache/ del CLI: lo descargado una vez se reutiliza entre sesiones.
 
-const CACHE = "pokebinder-v1";
+const CACHE = "placeholdr-v1";
 
 async function cached(url: string, refresh = false): Promise<Response> {
   const store = "caches" in self ? await caches.open(CACHE) : null;

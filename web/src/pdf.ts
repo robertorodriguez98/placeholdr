@@ -37,7 +37,7 @@ export interface PdfJob {
 export async function buildPdf(job: PdfJob): Promise<Blob> {
   const g = job.geometry;
   const doc = new jsPDF({ unit: "mm", format: [g.pw, g.ph], orientation: "portrait", compress: true });
-  doc.setProperties({ title: job.title, creator: "pokebinder" });
+  doc.setProperties({ title: job.title, creator: "Placeholdr" });
   const cards = await Promise.all(job.cards.map(async (c) => {
     if (!("href" in c.asset)) return c;
     const blob = job.blobOf(c.asset);

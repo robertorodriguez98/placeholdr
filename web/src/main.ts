@@ -1,3 +1,4 @@
+import "./migrate"; // la primera: pasa los datos guardados con el nombre antiguo
 import "./style.css";
 import { LANGS, TYPE_COLORS, TYPE_ES, type Lang, type Paper } from "./config";
 import {
@@ -39,7 +40,7 @@ const DEFAULTS: State = {
   dexBy: "gen", gens: [1], range: "1-151", ids: "", lang: uiLang, paper: "a4", bw: false,
   cutlines: true, frame: true, hideOwned: false,
 };
-const STORE_KEY = "pokebinder:state";
+const STORE_KEY = "placeholdr:state";
 
 function loadState(): State {
   try {

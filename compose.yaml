@@ -1,8 +1,8 @@
 # docker compose up -d --build   ->  http://localhost:8080
 services:
-  pokebinder:
+  placeholdr:
     build: .
-    image: pokebinder
+    image: placeholdr
     ports:
       - "8080:80"
     restart: unless-stopped
