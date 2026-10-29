@@ -1,4 +1,4 @@
-// Constantes y mapas portados de pokebinder.py (CLI congelado).
+// Constantes y mapas (colores, objetos, rarezas...) y tamaños en mm.
 
 export const LANGS = { es: "Español", en: "English", fr: "Français", de: "Deutsch", it: "Italiano" } as const;
 export type Lang = keyof typeof LANGS;

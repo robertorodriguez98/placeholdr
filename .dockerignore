@@ -1,7 +1,4 @@
 .git
-.pokecache
-retratos
 *.pdf
-__pycache__
 web/node_modules
 web/dist
