@@ -134,6 +134,14 @@ reproduce el diseño del CLI.
   pie del panel (botón del PDF y estado) queda fijo abajo para descargar sin volver a subir; el
   donativo de esa barra se oculta porque está al pie. Los campos usan 16 px para que iOS no
   amplíe al enfocarlos. Los textos dicen "haz clic o toca". Probado a 390 px sin scroll horizontal.
+- **Pantallas bajas de ordenador** (> 820 px de ancho y ≤ 860 px de alto, p. ej. 1366×768 o
+  1280×720): cabecera del panel en una fila y pie más compacto; entre 821 y 1100 px de ancho el
+  panel mide 300 px. Probado a 1440×900, 1366×768, 1280×720 y 1024×600. **Ojo con el panel:** es
+  `overflow: clip` (no `hidden`) y `.switch` es `position: relative`. Antes, las casillas ocultas
+  de los interruptores se colocaban respecto al panel; al hacer clic en uno, el navegador
+  desplazaba el panel entero para enseñar la casilla y quedaba movido (el botón del PDF a media
+  altura y un hueco debajo). Cualquier `position: absolute` nuevo dentro del panel necesita un
+  contenedor con `position: relative`.
 - **Idioma de la interfaz:** pastilla EN/ES a la derecha de la banda naranja. Por defecto, inglés. La
   elección se guarda en `localStorage` (`placeholdr:ui-lang`), igual que el resto del estado;
   no hace falta una cookie porque no hay servidor que tenga que leerla. Es **independiente del
