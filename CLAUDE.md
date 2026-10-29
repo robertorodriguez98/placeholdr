@@ -52,18 +52,16 @@ reproduce el diseño del CLI.
   oscura, con una barra naranja fija y las hojas de dos en dos, como un binder abierto. Los
   colores están en variables CSS, todos sacados del diseño de las cartas (`--orange`,
   `--stripe`, `--green` del Estadio, `--gold` de las rarezas).
-- **Cartas juntas** (por defecto, interruptor en "Impresión"): sin hueco entre cartas, así que
-  cada corte separa dos a la vez (8 cortes por hoja en vez de 12) y no sobran tiras de papel.
-  Las guías pasan a ser marcas de corte en el margen más una línea blanca fina en el centro de
-  la banda negra que forman los bordes de dos cartas (se dibujan encima de las cartas). Desactivado vuelve
-  a los 2 mm del CLI con la línea discontinua en cada hueco. Las hojas no cambian: en A4 y
-  Carta solo caben 3×3 cartas de 63×88 mm en cualquier caso. Está en `src/render/layout.ts`.
+- **Cartas juntas:** van pegadas, sin hueco, así cada corte separa dos a la vez (8 cortes por
+  hoja en vez de 12) y no quedan tiras sueltas. Es el único modo: el hueco de 2 mm del CLI se
+  quitó porque no aportaba nada (el margen de error ya lo da la banda negra de los bordes). Las
+  hojas no cambian: en A4 y Carta solo caben 3×3 cartas de 63×88 mm. Las guías (con "Líneas de
+  corte") van encima de las cartas: marcas en el margen en la prolongación de cada corte y,
+  según el marco, una línea blanca fina en el centro de la banda negra entre dos cartas o una
+  discontinua gris oscura por el borde. Está en `src/render/layout.ts`.
 - **Bordes negros** (por defecto, interruptor en "Impresión"): si se desactiva, `cardFrame` no
   dibuja el marco y el fondo de la carta (rayas y banda de los Entrenadores incluidas) llega
-  hasta el borde. La guía es entonces una línea discontinua gris oscura justo en el borde de
-  cada carta (`cardOutlines`), sin la línea blanca de la junta. Con cartas juntas, los bordes
-  compartidos se trazan una sola vez y se mantienen las marcas del margen. Va en
-  `RenderOpts.frame`.
+  hasta el borde, que se recorta por la discontinua. Va en `RenderOpts.frame`.
 - **PDF:** botón "Descargar PDF". Primero resuelve todas las imágenes y después convierte cada
   hoja con `svg2pdf.js`, que se carga solo al exportar. Las URL `blob:` pasan a data URL.
 - **Docker:** `docker compose up -d --build` → http://localhost:8080. La imagen es multi-etapa
