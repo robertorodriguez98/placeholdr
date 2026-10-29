@@ -126,7 +126,18 @@ reproduce el diseño del CLI.
   `STRINGS` (TypeScript avisa si falta alguna clave).
 - **PDF:** botón "Descargar PDF". Primero resuelve todas las imágenes y después convierte cada
   hoja con `svg2pdf.js`, que se carga solo al exportar. Las URL `blob:` pasan a data URL.
-- **Docker:** `docker compose up -d --build` → http://localhost:8080. La imagen es multi-etapa
+- **Producción: Cloudflare Pages** (dominio `placeholdr.org`, registrado en Cloudflare). Pages
+  compila cada push a `main` con raíz `web`, comando `npm run build` y salida `dist`
+  (variable `NODE_VERSION=22`). `web/public/_headers` añade las cabeceras de seguridad: una CSP
+  que solo deja ejecutar scripts propios y conectar con las fuentes de datos
+  (raw.githubusercontent.com, api.tcgdex.net, cdn.jsdelivr.net, www.wikidex.net,
+  images.wikidexcdn.net). **Si se añade una fuente nueva, o una `"url"` de otro dominio en
+  `bustos.json`, hay que añadirla a `connect-src`**, o el navegador la bloqueará. Probado
+  sirviendo `dist` con esas cabeceras: carga, sets japoneses con su fuente, WikiDex y PDF sin
+  ninguna violación. La analítica de Cloudflare debe seguir desactivada (la página legal dice
+  "sin analítica" y menciona Cloudflare Pages en privacidad). El correo `contact@placeholdr.org`
+  va por Email Routing de Cloudflare.
+- **Docker** (alternativa para un VPS, sin las cabeceras de `_headers`): `docker compose up -d --build` → http://localhost:8080. La imagen es multi-etapa
   (`node:22-alpine` compila y `nginx:1.27-alpine` sirve) y ocupa unos 75 MB. nginx **solo sirve
   los ficheros de la web**: no hace de proxy ni guarda imágenes de terceros.
 - **Sin Showdown:** antes, los bustos que faltaban en WikiDex se buscaban en los sprites de
