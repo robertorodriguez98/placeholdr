@@ -42,7 +42,7 @@ export function pageSvg(g: PageGeometry, cards: PlacedCard[], o: RenderOpts, p: 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${g.pw} ${g.ph}" `
     + `width="${g.pw}mm" height="${g.ph}mm">`
     + (p.preview ? pockets(g) : "")
-    + (p.cutlines ? cutlines(g, o) : "")
     + cards.map((c, k) => cardGroup(g, k, c, o, p.preview)).join("")
+    + (p.cutlines ? cutlines(g, o) : "") // encima: con cartas juntas, la guía cruza los bordes
     + "</svg>";
 }

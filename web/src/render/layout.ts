@@ -47,9 +47,10 @@ export function cutlines(g: PageGeometry, o: RenderOpts): string {
 }
 
 /**
- * Cartas juntas: el borde entre dos cartas ya es la línea de corte, así que solo se marcan
- * los extremos de cada corte en el margen (como las marcas de corte de imprenta), sin pisar
- * las cartas. Con la cuchilla o la guillotina se alinea de marca a marca.
+ * Cartas juntas: cada corte va por la junta entre dos cartas. Se marcan sus extremos en el
+ * margen (como las marcas de corte de imprenta) y una línea blanca fina en el centro de la
+ * banda negra que forman los dos bordes. Con la cuchilla o la guillotina se alinea de marca
+ * a marca siguiendo la línea blanca.
  */
 function cropMarks(g: PageGeometry, col: string): string {
   const off = 1.5, len = 7; // separación respecto a la cuadrícula y largo de la marca (mm)
@@ -64,7 +65,13 @@ function cropMarks(g: PageGeometry, col: string): string {
     d += `M${f(g.ox - off - len)} ${f(y)}H${f(g.ox - off)}`
       + `M${f(g.ox + g.gw + off)} ${f(y)}H${f(g.ox + g.gw + off + len)}`;
   }
-  return `<path d="${d}" stroke="${col}" stroke-width="${f(0.5 * PT)}" fill="none"/>`;
+  // Entre dos cartas los bordes negros forman una banda; una línea blanca fina en su centro
+  // marca el corte exacto. Va encima de las cartas (pageSvg dibuja las guías al final).
+  let seam = "";
+  for (let i = 1; i < COLS; i++) seam += `M${f(g.ox + i * CARD_W)} ${f(g.oy)}V${f(g.oy + g.gh)}`;
+  for (let j = 1; j < ROWS; j++) seam += `M${f(g.ox)} ${f(g.oy + j * CARD_H)}H${f(g.ox + g.gw)}`;
+  return `<path d="${d}" stroke="${col}" stroke-width="${f(0.5 * PT)}" fill="none"/>`
+    + `<path d="${seam}" stroke="#fff" stroke-width="${f(0.6 * PT)}" fill="none"/>`;
 }
 
 /** Bolsillos del binder: solo en la vista previa, para ver los huecos que quedan libres. */
