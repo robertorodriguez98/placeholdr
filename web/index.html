@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,12 +11,15 @@
     <aside class="panel">
       <!-- El panel es una carta de Partidario: banda, título subrayado y medallón -->
       <header class="band">
-        <span class="band-kicker">ENTRENADOR</span>
-        <span class="band-pill">POKEBINDER</span>
+        <span class="band-kicker" data-i18n="band.kicker">TRAINER</span>
+        <div class="band-right">
+          <div class="ui-lang" role="radiogroup" data-i18n-aria="ui.lang" aria-label="Interface language"></div>
+          <span class="band-pill">POKEBINDER</span>
+        </div>
       </header>
       <div class="panel-body">
         <div class="hero">
-          <h1>Placeholders para tu binder</h1>
+          <h1 data-i18n="hero">Placeholders for your binder</h1>
           <div class="medallion" aria-hidden="true">
             <svg viewBox="0 0 64 64">
               <rect x="13" y="10" width="38" height="46" rx="4" fill="#fff" stroke="#16181d" stroke-width="3.5"/>
@@ -31,81 +34,81 @@
           </div>
         </div>
 
-        <div class="tabs" role="tablist" aria-label="Modo">
-          <button role="tab" data-mode="set" aria-selected="true">Edición</button>
-          <button role="tab" data-mode="dex" aria-selected="false">Pokédex</button>
+        <div class="tabs" role="tablist" data-i18n-aria="mode" aria-label="Mode">
+          <button role="tab" data-mode="set" aria-selected="true" data-i18n="mode.set">Set</button>
+          <button role="tab" data-mode="dex" aria-selected="false" data-i18n="mode.dex">Pokédex</button>
         </div>
 
         <section id="set-panel" class="block">
-          <h2 class="pill-title">Edición</h2>
-          <select id="set-select" aria-label="Edición" disabled><option>Cargando ediciones…</option></select>
+          <h2 class="pill-title" data-i18n="set">Set</h2>
+          <select id="set-select" data-i18n-aria="set" aria-label="Set" disabled><option data-i18n="set.loading">Loading sets…</option></select>
 
-          <h2 class="pill-title">Colección</h2>
-          <div class="segmented" role="radiogroup" aria-label="Colección">
-            <label title="Solo la numeración impresa (001-084): sin cartas secretas">
-              <input type="radio" name="collection" value="base" /><span>Base</span></label>
-            <label title="Una carta por número, incluidas las secretas">
-              <input type="radio" name="collection" value="complete" checked /><span>Completo</span></label>
-            <label title="Set completo más una copia por variante: reverse holo y primera edición">
-              <input type="radio" name="collection" value="master" /><span>Master</span></label>
+          <h2 class="pill-title" data-i18n="collection">Collection</h2>
+          <div class="segmented" role="radiogroup" data-i18n-aria="collection" aria-label="Collection">
+            <label data-i18n-title="coll.base.tip">
+              <input type="radio" name="collection" value="base" /><span data-i18n="coll.base">Base</span></label>
+            <label data-i18n-title="coll.complete.tip">
+              <input type="radio" name="collection" value="complete" checked /><span data-i18n="coll.complete">Complete</span></label>
+            <label data-i18n-title="coll.master.tip">
+              <input type="radio" name="collection" value="master" /><span data-i18n="coll.master">Master</span></label>
           </div>
 
-          <h2 class="pill-title">Tipos de carta</h2>
+          <h2 class="pill-title" data-i18n="types">Card types</h2>
           <div class="chips">
-            <label class="chip"><input type="checkbox" name="only" value="pokemon" checked /><span>Pokémon</span></label>
-            <label class="chip"><input type="checkbox" name="only" value="trainer" checked /><span>Entrenador</span></label>
-            <label class="chip"><input type="checkbox" name="only" value="energy" checked /><span>Energía</span></label>
+            <label class="chip"><input type="checkbox" name="only" value="pokemon" checked /><span data-i18n="type.pokemon">Pokémon</span></label>
+            <label class="chip"><input type="checkbox" name="only" value="trainer" checked /><span data-i18n="type.trainer">Trainer</span></label>
+            <label class="chip"><input type="checkbox" name="only" value="energy" checked /><span data-i18n="type.energy">Energy</span></label>
           </div>
         </section>
 
         <section id="dex-panel" class="block" hidden>
-          <h2 class="pill-title">Selección</h2>
-          <select id="dex-by" aria-label="Selección">
-            <option value="gen">Por generación</option>
-            <option value="range">Por rango</option>
-            <option value="ids">Números sueltos</option>
+          <h2 class="pill-title" data-i18n="dex.selection">Selection</h2>
+          <select id="dex-by" data-i18n-aria="dex.selection" aria-label="Selection">
+            <option value="gen" data-i18n="dex.byGen">By generation</option>
+            <option value="range" data-i18n="dex.byRange">By range</option>
+            <option value="ids" data-i18n="dex.byIds">Individual numbers</option>
           </select>
           <div id="dex-gen" class="chips gens"></div>
-          <input id="dex-range-input" aria-label="Rango" placeholder="1-151" value="1-151" hidden />
-          <input id="dex-ids-input" aria-label="Números" placeholder="1, 4, 7, 25" hidden />
+          <input id="dex-range-input" data-i18n-aria="dex.range" aria-label="Range" placeholder="1-151" value="1-151" hidden />
+          <input id="dex-ids-input" data-i18n-aria="dex.ids" aria-label="Numbers" placeholder="1, 4, 7, 25" hidden />
         </section>
 
         <section class="block">
-          <h2 class="pill-title">Checklist</h2>
+          <h2 class="pill-title" data-i18n="checklist">Checklist</h2>
           <div class="tally">
-            <div class="tally-row"><strong id="owned-count">0</strong><span id="owned-of">de 0</span><em id="owned-pct">0 %</em></div>
+            <div class="tally-row"><strong id="owned-count">0</strong><span id="owned-of">of 0</span><em id="owned-pct">0 %</em></div>
             <div class="meter"><div id="owned-bar"></div></div>
           </div>
           <label class="switch"><input type="checkbox" id="hide-owned" /><span class="track"></span>
-            <span>Imprimir solo las que faltan</span></label>
-          <p class="hint">Haz clic en una carta de la vista previa para marcarla como tuya.</p>
+            <span data-i18n="hideOwned">Print only missing cards</span></label>
+          <p class="hint" data-i18n="checklist.hint">Click a card in the preview to mark it as yours.</p>
           <div class="btn-row">
-            <button class="btn" id="mark-all">Marcar todas</button>
-            <button class="btn" id="unmark-all">Desmarcar</button>
+            <button class="btn" id="mark-all" data-i18n="markAll">Mark all</button>
+            <button class="btn" id="unmark-all" data-i18n="unmarkAll">Unmark</button>
           </div>
           <div class="btn-row">
-            <button class="btn" id="import-csv">Importar CSV</button>
-            <button class="btn" id="export-csv">Exportar CSV</button>
+            <button class="btn" id="import-csv" data-i18n="importCsv">Import CSV</button>
+            <button class="btn" id="export-csv" data-i18n="exportCsv">Export CSV</button>
             <input type="file" id="csv-file" accept=".csv,text/csv,text/plain" hidden />
           </div>
         </section>
 
         <section class="block">
-          <h2 class="pill-title">Impresión</h2>
+          <h2 class="pill-title" data-i18n="print">Printing</h2>
           <div class="pair">
-            <select id="lang" aria-label="Idioma"></select>
-            <select id="paper" aria-label="Papel"><option value="a4">A4</option><option value="letter">Carta</option></select>
+            <select id="lang" data-i18n-aria="cardLang" data-i18n-title="cardLang" aria-label="Card language"></select>
+            <select id="paper" data-i18n-aria="paper" aria-label="Paper"><option value="a4">A4</option><option value="letter" data-i18n="paper.letter">Letter</option></select>
           </div>
-          <label class="switch"><input type="checkbox" id="bw" /><span class="track"></span><span>Blanco y negro</span></label>
-          <label class="switch" title="Sin marco, la carta llega hasta la línea de corte discontinua">
-            <input type="checkbox" id="frame" checked /><span class="track"></span><span>Bordes negros</span></label>
-          <label class="switch"><input type="checkbox" id="cutlines" checked /><span class="track"></span><span>Líneas de corte</span></label>
+          <label class="switch"><input type="checkbox" id="bw" /><span class="track"></span><span data-i18n="bw">Black &amp; white</span></label>
+          <label class="switch" data-i18n-title="frame.tip">
+            <input type="checkbox" id="frame" checked /><span class="track"></span><span data-i18n="frame">Black borders</span></label>
+          <label class="switch"><input type="checkbox" id="cutlines" checked /><span class="track"></span><span data-i18n="cutlines">Cutting guides</span></label>
         </section>
       </div>
 
       <footer class="actions">
         <button id="pdf" class="primary" disabled>
-          <span>Descargar PDF</span><span class="diamond" aria-hidden="true">◆</span>
+          <span data-i18n="pdf">Download PDF</span><span class="diamond" aria-hidden="true">◆</span>
         </button>
         <div class="meter slim" id="progress" hidden><div></div></div>
         <p id="status" class="status" aria-live="polite"></p>
@@ -115,7 +118,7 @@
     <main class="stage">
       <header class="stage-bar">
         <div class="stage-title">
-          <span class="stage-kicker" id="stage-kicker">EDICIÓN</span>
+          <span class="stage-kicker" id="stage-kicker" data-i18n="stage.mode">SET</span>
           <h2 id="stage-name">…</h2>
         </div>
         <div class="stage-pills" id="stage-pills"></div>

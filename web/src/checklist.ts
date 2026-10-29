@@ -87,7 +87,8 @@ export function importCsv(text: string): { added: number; skipped: number } {
     const line = raw.replace(/^﻿/, "").trim();
     if (!line) continue;
     const [coll, num, variant] = parseLine(line);
-    if (!coll || !num || /^colecci/i.test(coll)) { if (!/^colecci/i.test(coll)) skipped++; continue; }
+    const header = /^(colecci|collection)/i.test(coll);
+    if (!coll || !num || header) { if (!header) skipped++; continue; }
     const key = cardKey(coll, num, variant || undefined);
     if (!owned.has(key)) { owned.add(key); added++; }
   }
