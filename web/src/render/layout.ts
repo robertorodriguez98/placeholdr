@@ -31,7 +31,9 @@ export function slot(g: PageGeometry, k: number): [number, number] {
 
 export function cutlines(g: PageGeometry, o: RenderOpts): string {
   const col = o.bw ? "rgb(140,140,140)" : "rgb(115,115,204)";
-  if (!g.gap) return cropMarks(g, col);
+  // sin marco, la discontinua es la única guía: gris oscuro, que se ve también sobre las bandas
+  if (!o.frame) return cardOutlines(g, "rgb(70,70,70)") + (g.gap ? "" : cropMarks(g, col, false));
+  if (!g.gap) return cropMarks(g, col, true);
   const GAP = g.gap;
   let d = "";
   for (let i = 1; i < COLS; i++) {
@@ -52,7 +54,7 @@ export function cutlines(g: PageGeometry, o: RenderOpts): string {
  * banda negra que forman los dos bordes. Con la cuchilla o la guillotina se alinea de marca
  * a marca siguiendo la línea blanca.
  */
-function cropMarks(g: PageGeometry, col: string): string {
+function cropMarks(g: PageGeometry, col: string, seams: boolean): string {
   const off = 1.5, len = 7; // separación respecto a la cuadrícula y largo de la marca (mm)
   let d = "";
   for (let i = 0; i <= COLS; i++) {
@@ -67,11 +69,32 @@ function cropMarks(g: PageGeometry, col: string): string {
   }
   // Entre dos cartas los bordes negros forman una banda; una línea blanca fina en su centro
   // marca el corte exacto. Va encima de las cartas (pageSvg dibuja las guías al final).
+  if (!seams) return `<path d="${d}" stroke="${col}" stroke-width="${f(0.5 * PT)}" fill="none"/>`;
   let seam = "";
   for (let i = 1; i < COLS; i++) seam += `M${f(g.ox + i * CARD_W)} ${f(g.oy)}V${f(g.oy + g.gh)}`;
   for (let j = 1; j < ROWS; j++) seam += `M${f(g.ox)} ${f(g.oy + j * CARD_H)}H${f(g.ox + g.gw)}`;
   return `<path d="${d}" stroke="${col}" stroke-width="${f(0.5 * PT)}" fill="none"/>`
     + `<path d="${seam}" stroke="#fff" stroke-width="${f(0.6 * PT)}" fill="none"/>`;
+}
+
+/**
+ * Sin marco negro: línea discontinua justo en el borde de cada carta. Con cartas juntas, los
+ * bordes compartidos se trazan una sola vez (líneas de lado a lado de la cuadrícula) para que
+ * los trazos no se solapen.
+ */
+function cardOutlines(g: PageGeometry, col: string): string {
+  let d = "";
+  if (!g.gap) {
+    for (let i = 0; i <= COLS; i++) d += `M${f(g.ox + i * CARD_W)} ${f(g.oy)}V${f(g.oy + g.gh)}`;
+    for (let j = 0; j <= ROWS; j++) d += `M${f(g.ox)} ${f(g.oy + j * CARD_H)}H${f(g.ox + g.gw)}`;
+  } else {
+    for (let k = 0; k < PER_PAGE; k++) {
+      const [x, y] = slot(g, k);
+      d += `M${f(x)} ${f(y)}h${CARD_W}v${CARD_H}h${-CARD_W}z`;
+    }
+  }
+  return `<path d="${d}" stroke="${col}" stroke-width="${f(0.6 * PT)}" `
+    + `stroke-dasharray="${f(3 * PT)} ${f(2 * PT)}" fill="none"/>`;
 }
 
 /** Bolsillos del binder: solo en la vista previa, para ver los huecos que quedan libres. */

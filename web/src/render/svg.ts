@@ -10,6 +10,7 @@ export const FONT = "helvetica, arial, sans-serif"; // svg2pdf la mapea a la Hel
 export interface RenderOpts {
   bw: boolean; // optimizado para blanco y negro
   lang: string;
+  frame: boolean; // marco negro; sin él, la carta llega hasta la línea de corte
 }
 
 // Las anchuras se miden con las métricas de Helvetica-Bold de jsPDF, las mismas que usará
@@ -77,6 +78,9 @@ export function pill(
 
 /** Marco negro grueso de la carta. */
 export function cardFrame(border: number, o: RenderOpts, bg: RGB = [0.975, 0.98, 0.99], fill = true): string {
+  if (!o.frame) { // sin marco: solo el fondo, a sangre hasta el borde de la carta
+    return fill ? `<rect x="0" y="0" width="${CARD_W}" height="${CARD_H}" fill="${css(o.bw ? WHITE : bg)}"/>` : "";
+  }
   return `<rect x="${f(border / 2)}" y="${f(border / 2)}" width="${f(CARD_W - border)}" `
     + `height="${f(CARD_H - border)}" fill="${fill ? css(o.bw ? WHITE : bg) : "none"}" `
     + `stroke="#000" stroke-width="${f(border)}"/>`;
