@@ -37,13 +37,14 @@ interface State {
   bw: boolean;
   cutlines: boolean;
   frame: boolean;     // marco negro de las cartas
+  images: boolean;    // artwork, bustos e iconos de objeto; sin ellos, solo dibujos vectoriales
   hideOwned: boolean; // checklist: imprimir solo las que faltan
 }
 
 const DEFAULTS: State = {
   mode: "set", region: "intl", setId: "", setIdJa: "", only: ["pokemon", "trainer", "energy"], collection: "complete",
   dexBy: "gen", gens: [1], range: "1-151", ids: "", lang: uiLang, paper: "a4", bw: false,
-  cutlines: true, frame: true, hideOwned: false,
+  cutlines: true, frame: true, images: true, hideOwned: false,
 };
 const STORE_KEY = "placeholdr:state";
 
@@ -105,6 +106,10 @@ const legal = $<HTMLDialogElement>("#legal");
 $<HTMLButtonElement>("#guide-open").onclick = () => guide.showModal();
 $<HTMLButtonElement>("#legal-open").onclick = () => legal.showModal();
 for (const d of [guide, legal]) d.addEventListener("click", (e) => { if (e.target === d) d.close(); });
+// versión al pie: la de package.json y el commit compilado, que enlaza a GitHub
+const version = $<HTMLAnchorElement>("#version");
+version.textContent = `v${__APP_VERSION__}${__APP_COMMIT__ ? ` · ${__APP_COMMIT__}` : ""}`;
+if (__APP_COMMIT__) version.href = `https://github.com/robertorodriguez98/placeholdr/commit/${__APP_COMMIT__}`;
 // el correo de contacto se monta aquí para que no aparezca entero en el HTML (bots de spam)
 const mail = ["contact", "placeholdr.org"].join("@");
 Object.assign($<HTMLAnchorElement>("#contact-mail"), { href: `mailto:${mail}`, textContent: mail });
@@ -124,6 +129,8 @@ const cutChk = $<HTMLInputElement>("#cutlines");
 cutChk.onchange = () => { state.cutlines = cutChk.checked; changed(); };
 const frameChk = $<HTMLInputElement>("#frame");
 frameChk.onchange = () => { state.frame = frameChk.checked; changed(); };
+const imagesChk = $<HTMLInputElement>("#images");
+imagesChk.onchange = () => { state.images = imagesChk.checked; changed(); };
 const hideChk = $<HTMLInputElement>("#hide-owned");
 hideChk.onchange = () => { state.hideOwned = hideChk.checked; saveState(); rerender(); };
 
@@ -168,6 +175,7 @@ function syncControls() {
   bwChk.checked = state.bw;
   cutChk.checked = state.cutlines;
   frameChk.checked = state.frame;
+  imagesChk.checked = state.images;
   hideChk.checked = state.hideOwned;
   regionRadios.forEach((r) => (r.checked = r.value === state.region));
   onlyChks.forEach((c) => (c.checked = state.only.includes(c.value as Supertype)));
@@ -274,6 +282,7 @@ async function setSelection(my: number): Promise<Selection | null> {
           topLeft: es ? TYPE_ES[tp] ?? tp.toUpperCase() : tp.toUpperCase(),
           topLeftColor: TYPE_COLORS[tp] ?? [0, 0, 0],
           badge: en.startsWith("Mega ") && en.endsWith(" ex") ? "MEGA ex" : en.endsWith(" ex") ? "ex" : undefined,
+          dex,
         },
         job: dex ? artJob(dex, bw) : undefined,
       };
@@ -332,7 +341,7 @@ async function dexSelection(): Promise<Selection> {
       key: checklist.cardKey("dex", String(p.id)),
       spec: {
         type: "pokemon", name: p.name, number: `#${pad(p.id)}`,
-        topLeft: `GEN ${p.gen}`, topLeftColor: [0, 0, 0],
+        topLeft: `GEN ${p.gen}`, topLeftColor: [0, 0, 0], dex: p.id,
       },
       job: artJob(p.id, state.bw),
     })),
@@ -360,6 +369,8 @@ async function update() {
   try {
     const sel = state.mode === "set" ? await setSelection(my) : await dexSelection();
     if (my !== token || !sel) return;
+    // sin imágenes no se descarga nada: las cartas usan sus dibujos vectoriales
+    if (!state.images) sel.items.forEach((it) => delete it.job);
     current = { sel, visible: [], opts: { bw: state.bw, lang: state.lang, frame: state.frame } };
     rerender();
   } catch (e) {
@@ -527,7 +538,8 @@ pdfBtn.onclick = async () => {
     });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `${sel.file}${state.hideOwned ? "_" + t("file.missing") : ""}${state.bw ? "_bw" : ""}.pdf`;
+    a.download = `${sel.file}${state.hideOwned ? "_" + t("file.missing") : ""}`
+      + `${state.images ? "" : "_" + t("file.noImages")}${state.bw ? "_bw" : ""}.pdf`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
     setStatus(t("pdf.done", { file: a.download, mb: (blob.size / 1e6).toFixed(1) }));

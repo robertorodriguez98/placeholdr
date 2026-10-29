@@ -21,6 +21,7 @@ export interface PokemonSpec {
   topLeft: string;
   topLeftColor: RGB;
   badge?: string;
+  dex?: number; // número de la Pokédex nacional, para el modo sin imágenes
   rarity?: string;
   variant?: string;
 }
@@ -64,6 +65,7 @@ function drawPokemon(s: PokemonSpec, asset: Asset, o: RenderOpts): string {
   const box = 40, icy = CARD_H / 2 + 4;
   if (asset.type === "art") svg += image(asset.href, CX - box / 2, icy - box / 2, box, box);
   else if (asset.type === "pending") svg += circle(CX, icy, box * 0.38, "#eceef1");
+  else svg += dexBadge(s, icy, box * 0.38, o);
   return svg + footer(s.number, s.rarity, s.variant, o);
 }
 
@@ -156,6 +158,14 @@ function bustMedallion(href: string, cy: number, r: number, col: RGB, o: RenderO
     + `<clipPath id="${clip}"><circle cx="${f(CX)}" cy="${f(cy)}" r="${f(r)}"/></clipPath>`
     + image(href, CX - side / 2, cy - r * 1.03, side, side, `clip-path="url(#${clip})"`)
     + circle(CX, cy, r, "none", `stroke="${o.bw ? "#000" : css(col)}" stroke-width="${f(1.4 * PT)}"`);
+}
+
+/** Sin imagen: círculo del color del tipo con el número de la Pokédex. */
+function dexBadge(s: PokemonSpec, cy: number, r: number, o: RenderOpts): string {
+  const col = o.bw ? BW_INK : s.topLeftColor;
+  const label = s.dex ? `#${String(s.dex).padStart(4, "0")}` : "?";
+  return circle(CX, cy, r, css(mix(col, o.bw ? 0.93 : 0.82)))
+    + text(CX, cy + 1.6, label, s.dex ? 12 : 20, o.bw ? [0, 0, 0] : col.map((v) => v * 0.7) as RGB, "middle");
 }
 
 /** Iconos vectoriales de respaldo (persona, cápsula, llave inglesa, estadio). */
