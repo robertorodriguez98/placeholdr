@@ -38,6 +38,14 @@
         </div>
 
         <section id="set-panel" class="block">
+          <h2 class="pill-title" data-i18n="region">Catalogue</h2>
+          <div class="segmented" role="radiogroup" data-i18n-aria="region" aria-label="Catalogue">
+            <label data-i18n-title="region.intl.tip">
+              <input type="radio" name="region" value="intl" checked /><span data-i18n="region.intl">International</span></label>
+            <label data-i18n-title="region.ja.tip">
+              <input type="radio" name="region" value="ja" /><span data-i18n="region.ja">Japan</span></label>
+          </div>
+
           <h2 class="pill-title" data-i18n="set">Set</h2>
           <select id="set-select" data-i18n-aria="set" aria-label="Set" disabled><option data-i18n="set.loading">Loading sets…</option></select>
 

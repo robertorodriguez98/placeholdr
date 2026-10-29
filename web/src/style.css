@@ -47,6 +47,12 @@ button, select, input { font: inherit; color: inherit; }
   box-shadow: 0 18px 40px rgb(0 0 0 / 0.35);
 }
 
+/* nombres de los sets japoneses: la misma fuente que el PDF (se descarga solo si se usa) */
+@font-face {
+  font-family: "MPLUS1p"; font-weight: 700; font-display: swap;
+  src: url("https://cdn.jsdelivr.net/gh/google/fonts@9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/mplus1p/MPLUS1p-Bold.ttf") format("truetype");
+}
+
 .band {
   display: flex; align-items: center; justify-content: space-between;
   background: var(--orange);
@@ -126,7 +132,7 @@ select:disabled { opacity: 0.6; cursor: progress; }
 
 /* colección: control segmentado */
 .segmented {
-  display: grid; grid-template-columns: repeat(3, 1fr);
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; /* tantas columnas como opciones */
   border: 2px solid var(--ink); border-radius: var(--radius); overflow: hidden; background: #fff;
 }
 .segmented label { position: relative; cursor: pointer; }
