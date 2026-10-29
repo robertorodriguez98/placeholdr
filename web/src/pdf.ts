@@ -5,7 +5,9 @@ import "svg2pdf.js";
 import type { Asset } from "./render/cards";
 import { PER_PAGE, type PageGeometry } from "./render/layout";
 import { pageSvg, type PlacedCard } from "./render/page";
-import type { RenderOpts } from "./render/svg";
+import { CJK_FAMILY, type RenderOpts } from "./render/svg";
+import { fetchBlob } from "./data/fetch";
+import { CJK_FONT } from "./data/sources";
 
 const dataUrls = new Map<string, Promise<string>>();
 
@@ -31,13 +33,24 @@ export interface PdfJob {
   opts: RenderOpts;
   cutlines: boolean;
   title: string;
+  cjk: boolean; // hay texto japonés: se incrusta M PLUS 1p
   onProgress?: (page: number, pages: number) => void;
+}
+
+/** Registra M PLUS 1p en el documento (jsPDF solo admite TrueType, en base64). */
+async function addCjkFont(doc: jsPDF) {
+  const bytes = new Uint8Array(await (await fetchBlob(CJK_FONT)).arrayBuffer());
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  doc.addFileToVFS("MPLUS1p-Bold.ttf", btoa(bin));
+  doc.addFont("MPLUS1p-Bold.ttf", CJK_FAMILY, "bold");
 }
 
 export async function buildPdf(job: PdfJob): Promise<Blob> {
   const g = job.geometry;
   const doc = new jsPDF({ unit: "mm", format: [g.pw, g.ph], orientation: "portrait", compress: true });
   doc.setProperties({ title: job.title, creator: "Placeholdr" });
+  if (job.cjk) await addCjkFont(doc);
   const cards = await Promise.all(job.cards.map(async (c) => {
     if (!("href" in c.asset)) return c;
     const blob = job.blobOf(c.asset);

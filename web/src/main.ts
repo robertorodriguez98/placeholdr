@@ -3,8 +3,9 @@ import "./style.css";
 import { LANGS, TYPE_COLORS, TYPE_ES, type Lang, type Paper } from "./config";
 import {
   groupBySeries, loadSetCards, loadSets, loadTranslations, normNum, selectCards,
-  type Collection, type Supertype, type TcgSet,
+  type Collection, type Supertype, type TcgCard, type TcgSet,
 } from "./data/tcg";
+import { jaNameEn, loadJaCards, loadJaSets } from "./data/japan";
 import { loadSpecies, parseIds, parseRange, selectSpecies, type DexSelection } from "./data/species";
 import { extraCopies, loadVariants, type Variants } from "./data/variants";
 import { ItemResolver, knownItems } from "./assets/items";
@@ -18,9 +19,13 @@ import { cardInner, pageSvg, type PlacedCard } from "./render/page";
 import type { RenderOpts } from "./render/svg";
 
 // ---------------------------------------------------------------- estado
+type Region = "intl" | "ja";
+
 interface State {
   mode: "set" | "dex";
+  region: Region;     // catálogo de ediciones: internacional o japonés
   setId: string;
+  setIdJa: string;
   only: Supertype[];
   collection: Collection;
   dexBy: DexSelection["by"];
@@ -36,7 +41,7 @@ interface State {
 }
 
 const DEFAULTS: State = {
-  mode: "set", setId: "", only: ["pokemon", "trainer", "energy"], collection: "complete",
+  mode: "set", region: "intl", setId: "", setIdJa: "", only: ["pokemon", "trainer", "energy"], collection: "complete",
   dexBy: "gen", gens: [1], range: "1-151", ids: "", lang: uiLang, paper: "a4", bw: false,
   cutlines: true, frame: true, hideOwned: false,
 };
@@ -112,7 +117,13 @@ frameChk.onchange = () => { state.frame = frameChk.checked; changed(); };
 const hideChk = $<HTMLInputElement>("#hide-owned");
 hideChk.onchange = () => { state.hideOwned = hideChk.checked; saveState(); rerender(); };
 
-setSelect.onchange = () => { state.setId = setSelect.value; changed(); };
+setSelect.onchange = () => {
+  if (state.region === "ja") state.setIdJa = setSelect.value;
+  else state.setId = setSelect.value;
+  changed();
+};
+const regionRadios = [...document.querySelectorAll<HTMLInputElement>('input[name="region"]')];
+regionRadios.forEach((r) => { r.onchange = () => { state.region = r.value as Region; changed(); }; });
 const onlyChks = [...document.querySelectorAll<HTMLInputElement>('input[name="only"]')];
 onlyChks.forEach((c) => {
   c.onchange = () => {
@@ -148,7 +159,7 @@ function syncControls() {
   cutChk.checked = state.cutlines;
   frameChk.checked = state.frame;
   hideChk.checked = state.hideOwned;
-  if (sets) setSelect.value = state.setId;
+  regionRadios.forEach((r) => (r.checked = r.value === state.region));
   onlyChks.forEach((c) => (c.checked = state.only.includes(c.value as Supertype)));
   collRadios.forEach((r) => (r.checked = r.value === state.collection));
   dexBy.value = state.dexBy;
@@ -161,22 +172,31 @@ function syncControls() {
 }
 
 // ---------------------------------------------------------------- datos -> cartas
-let sets: TcgSet[] | null = null;
+// Listas de ediciones por catálogo; la japonesa se carga la primera vez que se elige Japón.
+const setLists: Partial<Record<Region, Promise<TcgSet[]>>> = {};
+let shownRegion: Region | null = null; // catálogo que hay ahora en el desplegable
 
-async function initSets() {
-  try {
-    sets = await loadSets();
-  } catch (e) {
-    setStatus(t("err.sets", { e: String(e) }), true);
-    return;
+async function setsFor(region: Region): Promise<TcgSet[]> {
+  const p = setLists[region] ??= region === "ja" ? loadJaSets() : loadSets();
+  p.catch(() => delete setLists[region]); // si falla, se reintenta en el próximo cambio
+  return p;
+}
+
+/** Rellena el desplegable con las ediciones del catálogo y devuelve la elegida. */
+function showSets(region: Region, sets: TcgSet[]): TcgSet {
+  if (shownRegion !== region) {
+    setSelect.innerHTML = groupBySeries(sets).map(([series, list]) =>
+      `<optgroup label="${esc(series)}">${list.map((s) => s.tcgdexId
+        ? `<option value="${s.id}">${esc(s.name)} · ${esc(s.tcgdexId)}</option>`
+        : `<option value="${s.id}">${esc(s.name)} · ${s.releaseDate.slice(0, 4)} · ${s.ptcgoCode ?? s.id}</option>`,
+      ).join("")}</optgroup>`).join("");
+    shownRegion = region;
   }
-  setSelect.innerHTML = groupBySeries(sets).map(([series, list]) =>
-    `<optgroup label="${esc(series)}">${list.map((s) =>
-      `<option value="${s.id}">${esc(s.name)} · ${s.releaseDate.slice(0, 4)} · ${s.ptcgoCode ?? s.id}</option>`,
-    ).join("")}</optgroup>`).join("");
-  if (!sets.some((s) => s.id === state.setId)) state.setId = groupBySeries(sets)[0][1][0].id;
+  const key = region === "ja" ? "setIdJa" : "setId";
+  if (!sets.some((s) => s.id === state[key])) { state[key] = groupBySeries(sets)[0][1][0].id; saveState(); }
+  setSelect.value = state[key];
   setSelect.disabled = false;
-  changed();
+  return sets.find((s) => s.id === state[key])!;
 }
 
 /** Una carta de la selección: qué dibujar, cómo conseguir su imagen y su clave del checklist. */
@@ -195,16 +215,31 @@ interface Selection {
 }
 
 async function setSelection(my: number): Promise<Selection | null> {
-  if (!sets) return null;
-  const set = sets.find((s) => s.id === state.setId)!;
+  let sets: TcgSet[];
+  try {
+    if (shownRegion !== state.region) { setSelect.disabled = true; setStatus(t("set.loading")); }
+    sets = await setsFor(state.region);
+  } catch (e) {
+    setStatus(t("err.sets", { e: String(e) }), true);
+    return null;
+  }
+  if (my !== token) return null;
+  const set = showSets(state.region, sets);
   setStatus(t("loading", { name: set.name }));
-  const [cards, tr, known] = await Promise.all([
-    loadSetCards(set.id),
-    loadTranslations(set, state.lang).catch(() => null),
-    knownItems(),
-  ]);
+  const ja = !!set.tcgdexId;
+  let cards: TcgCard[], tr: Awaited<ReturnType<typeof loadTranslations>> = null;
   let variants = new Map<string, Variants>();
-  if (state.collection === "master") {
+  const known = knownItems();
+  if (ja) { // nombres en japonés; las variantes vienen en las mismas fichas
+    ({ cards, variants } = await loadJaCards(set, (d, n) => {
+      if (my === token) { setStatus(t("ja.cards", { d, t: n })); setProgress(d, n); }
+    }));
+    setProgress(null);
+    if (!cards.length) throw new Error(t("ja.empty"));
+  } else {
+    [cards, tr] = await Promise.all([loadSetCards(set.id), loadTranslations(set, state.lang).catch(() => null)]);
+  }
+  if (!ja && state.collection === "master") {
     variants = await loadVariants(set, (d, n) => {
       if (my === token) { setStatus(t("variants", { d, t: n })); setProgress(d, n); }
     });
@@ -212,8 +247,9 @@ async function setSelection(my: number): Promise<Selection | null> {
   }
   const sel = selectCards(set, cards, { only: state.only, collection: state.collection },
     tr?.names ?? null, (c) => extraCopies(variants.get(normNum(c.number)), state.lang));
+  if (ja) sel.forEach((c) => (c.nameEn = jaNameEn(c)));
   const bw = state.bw, es = state.lang === "es";
-  const icons = new ItemResolver(known);
+  const icons = new ItemResolver(await known);
   const items: Item[] = sel.map((c) => {
     const base = { name: c.name, number: c.label, rarity: c.rarity, variant: c.variant };
     const key = checklist.cardKey(set.id, c.number, c.variant);
@@ -240,7 +276,8 @@ async function setSelection(my: number): Promise<Selection | null> {
     return {
       key,
       spec: { ...base, type: "trainer", subtypes },
-      job: subtypes.includes("Supporter")
+      // los bustos se buscan por el nombre del personaje en inglés/español: no hay en japonés
+      job: subtypes.includes("Supporter") && !ja
         ? bustJob(c.nameEn, c.name, trainerSlug(c.nameEn), slug, bw)
         : itemJob(slug, bw),
     };
@@ -248,7 +285,7 @@ async function setSelection(my: number): Promise<Selection | null> {
   const coll = t(`coll.name.${state.collection}`);
   const name = tr?.setName ?? set.name;
   return {
-    kicker: `${set.ptcgoCode ?? set.id.toUpperCase()} · /${String(set.printedTotal).padStart(3, "0")}`,
+    kicker: `${ja ? "JP · " + set.tcgdexId : set.ptcgoCode ?? set.id.toUpperCase()} · /${String(set.printedTotal).padStart(3, "0")}`,
     name: `${name} · ${coll}`,
     title: `${name} (${set.id}) · ${coll}`,
     file: `binder_${set.id}${state.collection === "complete" ? "" : "_" + state.collection}`,
@@ -474,6 +511,7 @@ pdfBtn.onclick = async () => {
       geometry: geometry(state.paper),
       opts,
       cutlines: state.cutlines,
+      cjk: state.mode === "set" && state.region === "ja",
       title: `${sel.title} — binder placeholders`,
       onProgress: (p, n) => { setStatus(t("pdf.page", { p, n })); setProgress(p, n); },
     });
@@ -492,6 +530,4 @@ pdfBtn.onclick = async () => {
   }
 };
 
-syncControls();
-initSets(); // al terminar recalcula; el modo Pokédex no necesita esperar a las ediciones
-if (state.mode === "dex") changed();
+changed(); // carga las ediciones del catálogo elegido (o la Pokédex) y dibuja

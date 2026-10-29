@@ -6,6 +6,11 @@ import { CARD_H, CARD_W, RARITY_ABBR, type RGB } from "../config";
 
 export const PT = 25.4 / 72; // mm por punto
 export const FONT = "helvetica, arial, sans-serif"; // svg2pdf la mapea a la Helvetica del PDF
+// Texto japonés: M PLUS 1p (registrada en jsPDF con este nombre en pdf.ts y como @font-face en
+// style.css para la vista previa). Solo se usa en los textos que llevan kana o kanji.
+export const CJK_FAMILY = "MPLUS1p";
+const CJK = /[\u3000-\u30ff\u3400-\u9fff\uff00-\uffef]/;
+export const hasCjk = (s: string) => CJK.test(s);
 
 export interface RenderOpts {
   bw: boolean; // optimizado para blanco y negro
@@ -18,10 +23,18 @@ export interface RenderOpts {
 const metrics = new jsPDF({ unit: "pt" });
 metrics.setFont("helvetica", "bold");
 
-/** Anchura en mm de un texto en Helvetica-Bold a `sizePt` puntos. */
+/**
+ * Anchura en mm de un texto en Helvetica-Bold a `sizePt` puntos. Los kana y kanji de M PLUS 1p
+ * miden un cuadratín; el resto se mide con Helvetica (en M PLUS 1p es parecido).
+ */
 export function textWidth(text: string, sizePt: number): number {
-  const w = metrics.getStringUnitWidth(text);
-  return (Number.isFinite(w) ? w : text.length * 0.6) * sizePt * PT;
+  let em = 0, latin = "";
+  for (const ch of text) {
+    if (CJK.test(ch)) em += 1;
+    else latin += ch;
+  }
+  const w = latin ? metrics.getStringUnitWidth(latin) : 0;
+  return ((Number.isFinite(w) ? w : latin.length * 0.6) + em) * sizePt * PT;
 }
 
 export function fitFont(text: string, maxPt: number, maxWidth: number, minPt = 5.5): number {
@@ -49,7 +62,8 @@ export function text(
   x: number, y: number, str: string, sizePt: number, fill: RGB,
   anchor: "start" | "middle" | "end" = "start",
 ): string {
-  return `<text x="${f(x)}" y="${f(y)}" font-family="${FONT}" font-weight="bold" `
+  const family = hasCjk(str) ? `${CJK_FAMILY}, ${FONT}` : FONT;
+  return `<text x="${f(x)}" y="${f(y)}" font-family="${family}" font-weight="bold" `
     + `font-size="${f(sizePt * PT)}" fill="${css(fill)}" text-anchor="${anchor}">${esc(str)}</text>`;
 }
 

@@ -11,6 +11,7 @@ export interface TcgSet {
   total: number;
   ptcgoCode?: string;
   releaseDate: string; // "2026/07/17"
+  tcgdexId?: string; // solo en los sets japoneses (data/japan.ts): su id en TCGdex
 }
 
 export interface TcgCard {
@@ -52,13 +53,16 @@ function naturalKey(num: string): [string, number] {
   return m ? [m[1], parseInt(m[2], 10)] : [num, 0];
 }
 
+/** Orden de colección: 1, 2... 10, y las subcolecciones (TG01...) agrupadas por prefijo. */
+export function byNumber(a: TcgCard, b: TcgCard): number {
+  const [pa, na] = naturalKey(a.number);
+  const [pb, nb] = naturalKey(b.number);
+  return pa.localeCompare(pb) || na - nb;
+}
+
 export async function loadSetCards(setId: string, refresh = false): Promise<TcgCard[]> {
   const cards = await fetchJson<TcgCard[]>(tcgCards(setId), refresh);
-  return cards.sort((a, b) => {
-    const [pa, na] = naturalKey(a.number);
-    const [pb, nb] = naturalKey(b.number);
-    return pa.localeCompare(pb) || na - nb;
-  });
+  return cards.sort(byNumber);
 }
 
 export function fmtNumber(num: string, total: number): string {
