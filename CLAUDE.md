@@ -109,9 +109,12 @@ reproduce el diseño del CLI.
 - **PDF:** botón "Descargar PDF". Primero resuelve todas las imágenes y después convierte cada
   hoja con `svg2pdf.js`, que se carga solo al exportar. Las URL `blob:` pasan a data URL.
 - **Docker:** `docker compose up -d --build` → http://localhost:8080. La imagen es multi-etapa
-  (`node:22-alpine` compila y `nginx:1.27-alpine` sirve) y ocupa unos 75 MB. nginx solo hace
-  de proxy, con caché de 30 días, para `/proxy/showdown/sprites/trainers/`; no es un proxy
-  abierto. En desarrollo hace lo mismo el `server.proxy` de Vite.
+  (`node:22-alpine` compila y `nginx:1.27-alpine` sirve) y ocupa unos 75 MB. nginx **solo sirve
+  los ficheros de la web**: no hace de proxy ni guarda imágenes de terceros.
+- **Sin Showdown:** antes, los bustos que faltaban en WikiDex se buscaban en los sprites de
+  Showdown, que no tienen CORS y pasaban por un proxy de nginx con caché de 30 días. Se quitó
+  para que el servidor no almacene ni sirva ningún archivo de Nintendo/TPC (precaución legal).
+  Si WikiDex no tiene al personaje, el Partidario usa su objeto.
 
 ### Desarrollo
 No hay Node instalado: todo se ejecuta en un contenedor `node:22-alpine`. En este equipo,
@@ -138,7 +141,7 @@ Claude in Chrome: el usuario navega con Firefox, pero instaló Chrome solo para 
   completa). El texto se mide con las métricas de Helvetica-Bold de jsPDF para que la vista
   previa encaje igual que el PDF.
 - `src/assets/`: `images.ts` (canvas: recorte, escalado, `toBW`, `cropBust`), `items.ts`
-  (`ItemResolver`), `busts.ts` (WikiDex/Showdown, lee `../../../bustos.json`) y `store.ts`
+  (`ItemResolver`), `busts.ts` (WikiDex, lee `../../../bustos.json`) y `store.ts`
   (cola de 6 trabajos y caché por clave).
 - `src/pdf.ts`: jsPDF + svg2pdf.js.
 - `src/checklist.ts`: cartas que tienes (localStorage y CSV).
@@ -159,7 +162,7 @@ Claude in Chrome: el usuario navega con Firefox, pero instaló Chrome solo para 
 - **Idiomas:** es, en, fr, de e it. Se dejan fuera ja, ko y zh por el problema de fuentes en
   el PDF (punto 5 de "Pendiente").
 - **CORS** (verificado): pokemon-tcg-data, PokeAPI, TCGdex, la API de WikiDex y su CDN
-  permiten `*`. Showdown no, así que pasa por el proxy de nginx.
+  permiten `*`. Showdown no, y por eso se quitó (ver "Sin Showdown").
 
 ---
 
