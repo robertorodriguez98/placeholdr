@@ -10,11 +10,11 @@ el navegador**: descargas, recortes, vista previa y PDF. El servidor solo sirve 
 estáticos. Empezó como un CLI en Python (`pokebinder.py`), del que se portó el diseño; se borró
 del repo antes de hacerlo público (sigue en el historial de git: `git log --all -- pokebinder.py`).
 
-El usuario (Roberto) habla en español; los mensajes de consola y los comentarios están en
-español. La interfaz de la web está en inglés por defecto, con español como alternativa
-(`src/i18n.ts`). Prefiere instrucciones directas, comando a comando, y que se explique el porqué
-cuando aporta. Trabajamos con una rama y un pull request por cambio
-(`gh pr create` / `gh pr merge --merge --delete-branch`).
+Los comentarios del código y los mensajes de commit están en español. La interfaz de la web
+está en inglés por defecto, con español como alternativa (`src/i18n.ts`). Se trabaja con una
+rama y un pull request por cambio (`gh pr create` / `gh pr merge --merge --delete-branch`).
+Las notas personales del mantenedor y de su equipo van en `CLAUDE.local.md`, que no se sube
+al repo.
 
 ---
 
@@ -167,9 +167,8 @@ reproduce el diseño del CLI.
   Si WikiDex no tiene al personaje, el Partidario usa su objeto.
 
 ### Desarrollo
-No hay Node instalado: todo se ejecuta en un contenedor `node:22-alpine`. En este equipo,
-Docker necesita un `DOCKER_CONFIG` temporal porque falta `docker-credential-desktop` (ver la
-memoria del usuario).
+Con Node 22: `cd web && npm install && npm run dev` (http://localhost:5173). Sin Node, en un
+contenedor `node:22-alpine`:
 ```bash
 # servidor de desarrollo en http://localhost:5173 (con recarga en caliente)
 docker run -d --rm --name placeholdr-dev -p 5173:5173 -v "<repo>:/repo" -w /repo/web node:22-alpine npm run dev
@@ -178,7 +177,7 @@ docker run --rm -v "<repo>:/repo" -w /repo/web node:22-alpine sh -c "npm install
 ```
 La primera vez que se exporta un PDF en desarrollo, Vite optimiza `svg2pdf.js` y recarga la
 página una vez; en producción no pasa. Para probar la interfaz se puede usar la extensión
-Claude in Chrome: el usuario navega con Firefox, pero instaló Chrome solo para las pruebas.
+Claude in Chrome.
 
 ### Estructura
 - `src/config.ts`: mapas portados del CLI original (`TYPE_COLORS`, `ITEM_KEYWORDS`…) y tamaños en mm.

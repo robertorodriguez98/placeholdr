@@ -1,4 +1,5 @@
 .git
 *.pdf
+CLAUDE.local.md
 web/node_modules
 web/dist
