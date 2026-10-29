@@ -95,6 +95,14 @@ reproduce el diseño del CLI.
   con Nintendo, Creatures, GAME FREAK ni The Pokémon Company (clave `legal`). Nada de imitar el
   logo ni la tipografía de Pokémon. `src/migrate.ts` copia las claves antiguas `pokebinder:*`
   a `placeholdr:*` y borra la caché `pokebinder-v1`.
+- **Guía de uso:** botón "?" en la banda, que abre un `<dialog>` con forma de carta de
+  Partidario y 6 pasos: qué imprimir, checklist, impresión, imprimir al 100 % ("tamaño
+  real", nunca "ajustar a la página"), recortar y al binder. Los textos son las claves
+  `guide.*` de `i18n.ts`.
+- **Donaciones:** Ko-fi (`https://ko-fi.com/krowno16`), solo para pagar el dominio y el
+  servidor. Son enlaces normales, sin el widget de Ko-fi, para no cargar scripts de terceros
+  que rastreen: uno discreto bajo "Descargar PDF", otro al pie de la vista previa y otro en la
+  guía. La herramienta es gratis entera: nada de funciones a cambio de donar.
 - **Idioma de la interfaz:** pastilla EN/ES a la derecha de la banda naranja. Por defecto, inglés. La
   elección se guarda en `localStorage` (`placeholdr:ui-lang`), igual que el resto del estado;
   no hace falta una cookie porque no hay servidor que tenga que leerla. Es **independiente del

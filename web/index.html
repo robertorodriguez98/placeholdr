@@ -13,7 +13,11 @@
       <!-- El panel es una carta de Partidario: banda, título subrayado y medallón -->
       <header class="band">
         <span class="band-pill">PLACEHOLDR</span>
-        <div class="ui-lang" role="radiogroup" data-i18n-aria="ui.lang" aria-label="Interface language"></div>
+        <div class="band-right">
+          <button class="help" id="guide-open" data-i18n-title="guide.open" data-i18n-aria="guide.open"
+            title="How to use Placeholdr" aria-label="How to use Placeholdr">?</button>
+          <div class="ui-lang" role="radiogroup" data-i18n-aria="ui.lang" aria-label="Interface language"></div>
+        </div>
       </header>
       <div class="panel-body">
         <div class="hero">
@@ -118,6 +122,8 @@
         </button>
         <div class="meter slim" id="progress" hidden><div></div></div>
         <p id="status" class="status" aria-live="polite"></p>
+        <a class="donate" href="https://ko-fi.com/krowno16" target="_blank" rel="noopener"
+          data-i18n="donate" data-i18n-title="donate.tip" title="Placeholdr is free. Donations on Ko-fi only pay for the domain and the server.">☕ Help cover hosting</a>
       </footer>
     </aside>
 
@@ -130,8 +136,31 @@
         <div class="stage-pills" id="stage-pills"></div>
       </header>
       <div id="preview" class="preview"></div>
+      <p class="support"><a href="https://ko-fi.com/krowno16" target="_blank" rel="noopener" data-i18n="support">Placeholdr is free and will stay free. If it&#x27;s useful to you, you can help cover the domain and server on Ko-fi ☕</a></p>
       <p class="legal" data-i18n="legal">Unofficial fan project. Not affiliated with, sponsored or endorsed by Nintendo, Creatures Inc., GAME FREAK or The Pokémon Company. Pokémon and card names are trademarks of their respective owners.</p>
     </main>
+
+    <!-- Guía de uso: una carta de Partidario más, con la banda y los pasos numerados -->
+    <dialog id="guide" class="guide" aria-labelledby="guide-title">
+      <header class="band"><span class="band-pill">PLACEHOLDR</span></header>
+      <div class="guide-body">
+        <h2 id="guide-title" data-i18n="guide.title">How to use Placeholdr</h2>
+        <p class="guide-intro" data-i18n="guide.intro">Placeholders are card-sized inserts that keep the spot of the cards you don&#x27;t have yet: your binder already looks complete and you can see at a glance what&#x27;s missing.</p>
+        <ol class="steps">
+          <li><h3 data-i18n="guide.s1.t">Choose what to print</h3><p data-i18n="guide.s1.p">In Set, pick the catalogue (International or Japan), the set and the collection: Base (printed numbering only), Complete (secret cards too) or Master (plus one copy per reverse holo or first edition). Filter by card type if you only want, say, the Trainers. In Pokédex, choose generations, a range (1-151) or individual numbers.</p></li>
+          <li><h3 data-i18n="guide.s2.t">Mark the cards you already have</h3><p data-i18n="guide.s2.p">Click a card in the preview to stamp it GOT IT, and click again to undo. Turn on “Print only missing cards” to leave them out of the PDF. Your checklist is saved in this browser: export it to CSV from time to time as a backup, or to move it to another computer.</p></li>
+          <li><h3 data-i18n="guide.s3.t">Set up the printing</h3><p data-i18n="guide.s3.p">Choose the language of the card names and labels, the paper (A4 or Letter), black &amp; white to save ink, and whether you want black borders and cutting guides.</p></li>
+          <li><h3 data-i18n="guide.s4.t">Download and print</h3><p data-i18n="guide.s4.p">Press Download PDF and print at 100 % (“Actual size”), never “Fit to page”: otherwise the cards won&#x27;t measure 63 × 88 mm and won&#x27;t fit the pockets. Print one sheet and check it with a ruler before printing the rest. Thicker paper (160-200 g/m²) makes sturdier placeholders.</p></li>
+          <li><h3 data-i18n="guide.s5.t">Cut</h3><p data-i18n="guide.s5.p">The cards are printed edge to edge, so each cut separates two of them: 4 vertical and 4 horizontal cuts per sheet. Line up the ruler or the guillotine with the marks in the margin. With black borders, follow the thin white line between two cards; without them, the dashed line.</p></li>
+          <li><h3 data-i18n="guide.s6.t">Into the binder</h3><p data-i18n="guide.s6.p">Slide each placeholder into its pocket. When you get the real card, swap it in and click its placeholder in the preview to mark it as yours.</p></li>
+        </ol>
+        <p class="guide-tip" data-i18n="guide.tip">Everything runs in your browser: nothing is uploaded and you don&#x27;t need an account. The first time you open a set it takes a few seconds to download its data; after that it&#x27;s cached.</p>
+      </div>
+      <form method="dialog" class="guide-actions">
+        <a class="donate" href="https://ko-fi.com/krowno16" target="_blank" rel="noopener" data-i18n="donate">☕ Help cover hosting</a>
+        <button class="primary" data-i18n="guide.close">Got it</button>
+      </form>
+    </dialog>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
