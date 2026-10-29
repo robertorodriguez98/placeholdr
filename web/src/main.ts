@@ -29,13 +29,14 @@ interface State {
   paper: Paper;
   bw: boolean;
   cutlines: boolean;
+  compact: boolean;   // cartas juntas, sin hueco: menos cortes
   hideOwned: boolean; // checklist: imprimir solo las que faltan
 }
 
 const DEFAULTS: State = {
   mode: "set", setId: "", only: ["pokemon", "trainer", "energy"], collection: "complete",
   dexBy: "gen", gens: [1], range: "1-151", ids: "", lang: "es", paper: "a4", bw: false,
-  cutlines: true, hideOwned: false,
+  cutlines: true, compact: true, hideOwned: false,
 };
 const STORE_KEY = "pokebinder:state";
 
@@ -90,6 +91,8 @@ const bwChk = $<HTMLInputElement>("#bw");
 bwChk.onchange = () => { state.bw = bwChk.checked; changed(); };
 const cutChk = $<HTMLInputElement>("#cutlines");
 cutChk.onchange = () => { state.cutlines = cutChk.checked; changed(); };
+const compactChk = $<HTMLInputElement>("#compact");
+compactChk.onchange = () => { state.compact = compactChk.checked; changed(); };
 const hideChk = $<HTMLInputElement>("#hide-owned");
 hideChk.onchange = () => { state.hideOwned = hideChk.checked; saveState(); rerender(); };
 
@@ -127,6 +130,7 @@ function syncControls() {
   paperSel.value = state.paper;
   bwChk.checked = state.bw;
   cutChk.checked = state.cutlines;
+  compactChk.checked = state.compact;
   hideChk.checked = state.hideOwned;
   if (sets) setSelect.value = state.setId;
   onlyChks.forEach((c) => (c.checked = state.only.includes(c.value as Supertype)));
@@ -344,7 +348,7 @@ function rerender() {
       : `<p class="empty"><strong>Nada que mostrar</strong>Prueba a cambiar los filtros.</p>`;
     return;
   }
-  const g = geometry(state.paper);
+  const g = geometry(state.paper, state.compact);
   const pages = Math.ceil(visible.length / PER_PAGE);
   let html = "";
   for (let p = 0; p < pages; p++) {
@@ -451,7 +455,7 @@ pdfBtn.onclick = async () => {
     const blob = await buildPdf({
       cards: visible.map(placed),
       blobOf,
-      geometry: geometry(state.paper),
+      geometry: geometry(state.paper, state.compact),
       opts,
       cutlines: state.cutlines,
       title: `${sel.title} — binder placeholders`,

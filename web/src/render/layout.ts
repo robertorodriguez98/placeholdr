@@ -1,4 +1,8 @@
 // Maquetación: 3×3 cartas centradas en la hoja con líneas de corte (draw_cutlines/render del CLI).
+// Dos disposiciones:
+//   - juntas (por defecto): sin hueco entre cartas, así cada corte separa dos cartas a la vez
+//     (8 cortes por hoja en vez de 12). Las guías son marcas de corte en el margen.
+//   - separadas: 2 mm entre cartas, como el CLI, con una línea discontinua en cada hueco.
 import { CARD_H, CARD_W, COLS, GAP, PAPER, ROWS, type Paper } from "../config";
 import { PT, num as f, type RenderOpts } from "./svg";
 
@@ -8,22 +12,27 @@ export interface PageGeometry {
   pw: number; ph: number; // tamaño de la hoja (mm)
   ox: number; oy: number; // esquina superior izquierda de la cuadrícula
   gw: number; gh: number;
+  gap: number;            // hueco entre cartas (0 = juntas)
 }
 
-export function geometry(paper: Paper): PageGeometry {
+export function geometry(paper: Paper, compact = true): PageGeometry {
   const [pw, ph] = PAPER[paper];
-  const gw = COLS * CARD_W + (COLS - 1) * GAP;
-  const gh = ROWS * CARD_H + (ROWS - 1) * GAP;
-  return { pw, ph, gw, gh, ox: (pw - gw) / 2, oy: (ph - gh) / 2 };
+  const gap = compact ? 0 : GAP;
+  const gw = COLS * CARD_W + (COLS - 1) * gap;
+  const gh = ROWS * CARD_H + (ROWS - 1) * gap;
+  return { pw, ph, gw, gh, gap, ox: (pw - gw) / 2, oy: (ph - gh) / 2 };
 }
 
 /** Posición (mm) de la carta k (0..8) dentro de la página. */
 export function slot(g: PageGeometry, k: number): [number, number] {
   const col = k % COLS, row = Math.floor(k / COLS);
-  return [g.ox + col * (CARD_W + GAP), g.oy + row * (CARD_H + GAP)];
+  return [g.ox + col * (CARD_W + g.gap), g.oy + row * (CARD_H + g.gap)];
 }
 
 export function cutlines(g: PageGeometry, o: RenderOpts): string {
+  const col = o.bw ? "rgb(140,140,140)" : "rgb(115,115,204)";
+  if (!g.gap) return cropMarks(g, col);
+  const GAP = g.gap;
   let d = "";
   for (let i = 1; i < COLS; i++) {
     const x = g.ox + i * (CARD_W + GAP) - GAP / 2;
@@ -33,9 +42,29 @@ export function cutlines(g: PageGeometry, o: RenderOpts): string {
     const y = g.oy + j * (CARD_H + GAP) - GAP / 2;
     d += `M${f(g.ox - 3)} ${f(y)}H${f(g.ox + g.gw + 3)}`;
   }
-  const col = o.bw ? "rgb(140,140,140)" : "rgb(115,115,204)";
   return `<path d="${d}" stroke="${col}" stroke-width="${f(0.4 * PT)}" `
     + `stroke-dasharray="${f(3 * PT)} ${f(2 * PT)}" fill="none"/>`;
+}
+
+/**
+ * Cartas juntas: el borde entre dos cartas ya es la línea de corte, así que solo se marcan
+ * los extremos de cada corte en el margen (como las marcas de corte de imprenta), sin pisar
+ * las cartas. Con la cuchilla o la guillotina se alinea de marca a marca.
+ */
+function cropMarks(g: PageGeometry, col: string): string {
+  const off = 1.5, len = 7; // separación respecto a la cuadrícula y largo de la marca (mm)
+  let d = "";
+  for (let i = 0; i <= COLS; i++) {
+    const x = g.ox + i * CARD_W;
+    d += `M${f(x)} ${f(g.oy - off - len)}V${f(g.oy - off)}`
+      + `M${f(x)} ${f(g.oy + g.gh + off)}V${f(g.oy + g.gh + off + len)}`;
+  }
+  for (let j = 0; j <= ROWS; j++) {
+    const y = g.oy + j * CARD_H;
+    d += `M${f(g.ox - off - len)} ${f(y)}H${f(g.ox - off)}`
+      + `M${f(g.ox + g.gw + off)} ${f(y)}H${f(g.ox + g.gw + off + len)}`;
+  }
+  return `<path d="${d}" stroke="${col}" stroke-width="${f(0.5 * PT)}" fill="none"/>`;
 }
 
 /** Bolsillos del binder: solo en la vista previa, para ver los huecos que quedan libres. */
