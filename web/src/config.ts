@@ -86,6 +86,6 @@ export const BW_INK: RGB = [0.25, 0.25, 0.25]; // gris de los iconos en B/N
 export const BW_LIGHTEN = 0.18; // cuánto se aclara el artwork en B/N (ahorro de tóner)
 
 // Tamaños en mm
-export const CARD_W = 63, CARD_H = 88, GAP = 2, COLS = 3, ROWS = 3;
+export const CARD_W = 63, CARD_H = 88, COLS = 3, ROWS = 3;
 export const PAPER = { a4: [210, 297], letter: [215.9, 279.4] } as const;
 export type Paper = keyof typeof PAPER;
