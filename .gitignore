@@ -1,8 +1,4 @@
-# caché de descargas (se regenera sola)
-.pokecache/
-# ilustraciones de entrenadores puestas a mano
-retratos/
 # PDFs generados
 *.pdf
-__pycache__/
-*.pyc
+# notas personales para Claude Code
+CLAUDE.local.md

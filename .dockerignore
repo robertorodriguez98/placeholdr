@@ -1,7 +1,5 @@
 .git
-.pokecache
-retratos
 *.pdf
-__pycache__
+CLAUDE.local.md
 web/node_modules
 web/dist
