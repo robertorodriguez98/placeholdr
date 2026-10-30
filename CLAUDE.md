@@ -161,7 +161,7 @@ reproduce el diseño del CLI.
   BSD-3 en datos e imágenes de Nintendo; WikiDex; M PLUS 1p, OFL; jsPDF y svg2pdf.js, MIT).
   Si se añade una fuente de datos nueva, hay que añadirla a créditos y a privacidad.
 - **SEO y vista previa al compartir:** en `index.html` van la descripción (Pokémon TCG,
-  binder, placeholders, sets japoneses, solo las que faltan), el enlace canónico, las etiquetas
+  binder, placeholders, solo las que faltan), el enlace canónico, las etiquetas
   Open Graph y `twitter:card` con `public/og-image.png` (1200×630, hecha con cartas del modo sin
   imágenes para usar solo dibujo propio) y datos estructurados `WebApplication` en JSON-LD (no
   es código, así que la CSP no lo afecta). Al pie de la vista previa hay un párrafo visible
