@@ -204,6 +204,13 @@ reproduce el diseño del CLI.
   pantalla. El CSV del checklist mantiene la cabecera en español; al importar se aceptan
   `coleccion` y `collection`. Para añadir un idioma: una entrada en `UI_LANGS` y su bloque en
   `STRINGS` (TypeScript avisa si falta alguna clave).
+- **Versión nueva con la web abierta:** al publicar, los ficheros con hash de la versión anterior
+  desaparecen (Cloudflare Pages devuelve la página principal en su lugar), así que el import
+  del PDF (`pdf-<hash>.js`, que se carga al pulsar el botón) falla en las pestañas abiertas
+  desde antes. `reloadIfOutdated` en `main.ts` lo detecta, avisa (`update.reload`) y recarga la
+  página una sola vez por sesión (`placeholdr:reloaded` en `sessionStorage`, que se borra al
+  cargar bien el PDF). Probado borrando el fichero con la página abierta: recarga la primera vez
+  y muestra el error la segunda.
 - **PDF:** botón "Descargar PDF". Primero resuelve todas las imágenes y después convierte cada
   hoja con `svg2pdf.js`, que se carga solo al exportar. Las URL `blob:` pasan a data URL.
 - **Producción: Cloudflare Pages** (dominio `placeholdr.org`, registrado en Cloudflare). Pages
