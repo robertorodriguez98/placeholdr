@@ -415,6 +415,16 @@ function refreshTally() {
   pdfBtn.disabled = !visible.length;
 }
 
+/**
+ * Botones _ □ × de la barra de título de cada hoja: iconos de 8×7 px dibujados como los de
+ * Windows 98 (con caracteres de texto no quedaban centrados en su caja).
+ */
+const icon = (d: string) =>
+  `<i><svg viewBox="0 0 8 7" width="8" height="7" shape-rendering="crispEdges"><path fill-rule="evenodd" d="${d}"/></svg></i>`;
+const WINDOW_BUTTONS = icon("M1 5h6v2H1z") // minimizar: barra abajo
+  + icon("M0 0h8v7H0zM1 2h6v4H1z") // maximizar: ventana con la barra de título gruesa
+  + icon("M0 0h2v1H0zM6 0h2v1H6zM1 1h2v1H1zM5 1h2v1H5zM2 2h4v1H2zM3 3h2v1H3zM2 4h4v1H2zM1 5h2v1H1zM5 5h2v1H5zM0 6h2v1H0zM6 6h2v1H6z"); // cerrar
+
 /** Recalcula qué se imprime y redibuja todas las hojas. */
 function rerender() {
   if (!current) return;
@@ -439,7 +449,7 @@ function rerender() {
     const cards = visible.slice(p * PER_PAGE, (p + 1) * PER_PAGE).map((it, k) => placed(it, p * PER_PAGE + k));
     html += `<div class="sheet" data-page="${p}" style="--n:${Math.min(p, 8)}">`
       + `<div class="retro-only sheet-bar"><span>📄 ${esc(sel.file)}_${String(p + 1).padStart(2, "0")}.pdf</span>`
-      + `<span class="wbtns" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div>`
+      + `<span class="wbtns" aria-hidden="true">${WINDOW_BUTTONS}</span></div>`
       + pageSvg(g, cards, opts, { cutlines: state.cutlines, preview: true })
       + `<span class="label">${t("sheetLabel", { p: p + 1, n: pages })}</span></div>`;
   }

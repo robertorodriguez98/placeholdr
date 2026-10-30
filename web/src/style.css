@@ -364,7 +364,7 @@ a.version[href]:hover { color: #fff; text-decoration: underline; }
   animation-delay: calc(var(--n, 0) * 50ms);
 }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
-.sheet svg {
+.sheet > svg {
   display: block; width: 100%; height: auto; background: #fff; border-radius: 3px;
   box-shadow: 0 2px 0 rgb(0 0 0 / 0.25), 0 22px 40px rgb(0 0 0 / 0.45);
 }
