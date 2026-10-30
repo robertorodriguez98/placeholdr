@@ -5,6 +5,7 @@ import {
   GOLD_BADGE, PT, cardFrame, circle, css, footer, mix, num as f, pill, star, text, title,
   type RenderOpts,
 } from "./svg";
+import { drawRetro } from "./retro";
 
 export const BORDER = 3.5 * PT; // grosor del marco (3.5 pt, como --border en el CLI)
 
@@ -44,12 +45,13 @@ export interface EnergySpec {
 }
 export type CardSpec = PokemonSpec | TrainerSpec | EnergySpec;
 
-const CX = CARD_W / 2;
-const image = (href: string, x: number, y: number, w: number, h: number, extra = "") =>
+export const CX = CARD_W / 2;
+export const image = (href: string, x: number, y: number, w: number, h: number, extra = "") =>
   `<image href="${href}" x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" `
   + `preserveAspectRatio="xMidYMid meet" ${extra}/>`;
 
 export function drawCard(spec: CardSpec, asset: Asset, o: RenderOpts, id: string): string {
+  if (o.style === "retro") return drawRetro(spec, asset, o, id);
   switch (spec.type) {
     case "pokemon": return drawPokemon(spec, asset, o);
     case "trainer": return drawTrainer(spec, asset, o, id);
@@ -69,7 +71,7 @@ function drawPokemon(s: PokemonSpec, asset: Asset, o: RenderOpts): string {
   return svg + footer(s.number, s.rarity, s.variant, o);
 }
 
-function trainerStyle(subtypes: string[]) {
+export function trainerStyle(subtypes: string[]) {
   const sub = subtypes.find((x) => x in TRAINER_STYLE) ?? "Item";
   return TRAINER_STYLE[sub];
 }
@@ -131,7 +133,7 @@ function drawEnergy(s: EnergySpec, asset: Asset, o: RenderOpts): string {
 }
 
 /** Orbe de energía: anillos concéntricos y destello. Diseño propio, no el símbolo oficial. */
-function energyOrb(cx: number, cy: number, r: number, col: RGB, special: boolean, core: boolean, o: RenderOpts): string {
+export function energyOrb(cx: number, cy: number, r: number, col: RGB, special: boolean, core: boolean, o: RenderOpts): string {
   let tones = core ? [0.88, 0.7, 0.45, 0.0] : [0.9, 0.8, 0.68, 0.55];
   if (o.bw && !core) tones = [0.95, 0.9, 0.85, 0.8];
   let svg = tones.map((t, i) => circle(cx, cy, r * (1 - i * 0.2), css(mix(col, t)))).join("");
@@ -146,22 +148,23 @@ function energyOrb(cx: number, cy: number, r: number, col: RGB, special: boolean
 }
 
 /** Objeto del juego sobre un círculo suave del color del subtipo. */
-function itemIcon(href: string, cy: number, r: number, col: RGB, o: RenderOpts): string {
+export function itemIcon(href: string, cy: number, r: number, col: RGB, o: RenderOpts): string {
   const box = r * 1.45;
   return circle(CX, cy, r, css(mix(col, o.bw ? 0.93 : 0.82))) + image(href, CX - box / 2, cy - box / 2, box, box);
 }
 
-/** Busto dentro del mismo círculo que los iconos de objeto, con el marco del subtipo. */
-function bustMedallion(href: string, cy: number, r: number, col: RGB, o: RenderOpts, clip: string): string {
-  const side = r * 2.05;
-  return circle(CX, cy, r, css(mix(col, o.bw ? 0.93 : 0.82)))
-    + `<clipPath id="${clip}"><circle cx="${f(CX)}" cy="${f(cy)}" r="${f(r)}"/></clipPath>`
-    + image(href, CX - side / 2, cy - r * 1.03, side, side, `clip-path="url(#${clip})"`)
-    + circle(CX, cy, r, "none", `stroke="${o.bw ? "#000" : css(col)}" stroke-width="${f(1.4 * PT)}"`);
+/** Retrato del Partidario: un cuadro grande de esquinas redondeadas con el marco del subtipo. */
+function bustMedallion(href: string, cy: number, _r: number, col: RGB, o: RenderOpts, clip: string): string {
+  const side = 38, x = CX - side / 2, y = cy - side / 2, rx = 3;
+  const frame = `x="${f(x)}" y="${f(y)}" width="${side}" height="${side}" rx="${rx}"`;
+  return `<rect ${frame} fill="${css(mix(col, o.bw ? 0.93 : 0.82))}"/>`
+    + `<clipPath id="${clip}"><rect ${frame}/></clipPath>`
+    + image(href, x, y + 0.6, side, side, `clip-path="url(#${clip})"`)
+    + `<rect ${frame} fill="none" stroke="${o.bw ? "#000" : css(col)}" stroke-width="${f(1.4 * PT)}"/>`;
 }
 
 /** Sin imagen: círculo del color del tipo con el número de la Pokédex. */
-function dexBadge(s: PokemonSpec, cy: number, r: number, o: RenderOpts): string {
+export function dexBadge(s: PokemonSpec, cy: number, r: number, o: RenderOpts): string {
   const col = o.bw ? BW_INK : s.topLeftColor;
   const label = s.dex ? `#${String(s.dex).padStart(4, "0")}` : "?";
   return circle(CX, cy, r, css(mix(col, o.bw ? 0.93 : 0.82)))
@@ -169,7 +172,7 @@ function dexBadge(s: PokemonSpec, cy: number, r: number, o: RenderOpts): string 
 }
 
 /** Iconos vectoriales de respaldo (persona, cápsula, llave inglesa, estadio). */
-function vectorIcon(kind: string, cx: number, cy: number, r: number, col: RGB, o: RenderOpts): string {
+export function vectorIcon(kind: string, cx: number, cy: number, r: number, col: RGB, o: RenderOpts): string {
   const c = css(col);
   let svg = circle(cx, cy, r, css(mix(col, o.bw ? 0.93 : 0.82)));
   if (kind === "person") {

@@ -1,22 +1,14 @@
-// Tema de la interfaz: "card" (la carta de Partidario, por defecto) o "retro" (web de 2003 al
-// estilo Neocities/GeoCities). Es el atributo data-theme de <html>, guardado en localStorage.
-// Solo cambia la interfaz: las cartas y el PDF son iguales en los dos temas.
+// Tema de la interfaz: la web de 2003 al estilo Neocities/GeoCities (retro.css), que es el
+// único. El diseño anterior (la carta de Partidario) sigue entero en style.css, que es la base
+// del retro: para recuperarlo basta con poner THEME = "card" (el atributo data-theme de <html>
+// deja de ser "retro" y no se aplica nada de retro.css).
 export type Theme = "card" | "retro";
 
-const KEY = "placeholdr:theme";
-let theme: Theme = "card";
-try {
-  if (localStorage.getItem(KEY) === "retro") theme = "retro";
-} catch { /* modo privado */ }
-document.documentElement.dataset.theme = theme;
+const THEME: Theme = "retro";
+document.documentElement.dataset.theme = THEME;
+try { localStorage.removeItem("placeholdr:theme"); } catch { /* lo guardaba el botón ★, ya quitado */ }
 
-export const currentTheme = () => theme;
-
-export function setTheme(next: Theme) {
-  theme = next;
-  document.documentElement.dataset.theme = next;
-  try { localStorage.setItem(KEY, next); } catch { /* modo privado */ }
-}
+export const currentTheme = () => THEME;
 
 /** Visitas desde este navegador (una por sesión). Es un contador real, no uno inventado. */
 export function countVisit(): number {
@@ -37,7 +29,7 @@ export function startSparkles() {
   const still = matchMedia("(prefers-reduced-motion: reduce)");
   let last = 0;
   document.addEventListener("pointermove", (e) => {
-    if (theme !== "retro" || still.matches || e.pointerType !== "mouse") return;
+    if (THEME !== "retro" || still.matches || e.pointerType !== "mouse") return;
     const now = performance.now();
     if (now - last < 45) return;
     last = now;

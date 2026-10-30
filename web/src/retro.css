@@ -178,10 +178,28 @@ html[data-theme="retro"] .marquee {
 }
 html[data-theme="retro"] .marquee span { display: inline-block; padding-left: 100%; animation: retro-marquee 22s linear infinite; }
 
-html[data-theme="retro"] .sheet svg { border-radius: 0; box-shadow: 6px 6px 0 #000; }
+/* cada hoja de la vista previa es una ventana: barra de título con el nombre del PDF, la hoja
+   dentro de un marco hundido y la barra de estado con "Hoja 1/14" */
+html[data-theme="retro"] .sheet {
+  gap: 0; padding: 3px; align-items: stretch; background: var(--w98);
+  box-shadow: var(--raised), 8px 8px 0 rgb(0 0 0 / 0.55);
+}
+html[data-theme="retro"] .sheet-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 3px 3px 3px 6px; margin-bottom: 3px; color: #fff;
+  background: linear-gradient(90deg, var(--navy), #1084d0); font: bold 12px Tahoma, sans-serif;
+}
+html[data-theme="retro"] .sheet-bar > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html[data-theme="retro"] .wbtns { display: flex; gap: 2px; flex: none; }
+html[data-theme="retro"] .wbtns i {
+  width: 16px; height: 14px; display: grid; place-items: center; font: bold 10px/1 Tahoma, sans-serif;
+  font-style: normal; color: #000; background: var(--w98); box-shadow: var(--raised);
+}
+html[data-theme="retro"] .wbtns i:last-child { margin-left: 2px; }
+html[data-theme="retro"] .sheet svg { border-radius: 0; box-shadow: var(--sunken); padding: 2px; }
 html[data-theme="retro"] .sheet .label {
-  background: #ffffe1; color: #000; border: 1px solid #000; border-radius: 0;
-  font: 11px Tahoma, sans-serif; letter-spacing: 0;
+  margin-top: 3px; padding: 2px 6px; text-align: left; background: var(--w98); color: #000;
+  border: 0; border-radius: 0; box-shadow: var(--sunken); font: 11px Tahoma, sans-serif; letter-spacing: 0;
 }
 html[data-theme="retro"] .empty { color: #ff0; font-family: "Comic Sans MS", "Comic Neue", cursive; }
 html[data-theme="retro"] .empty strong { color: #0ff; }

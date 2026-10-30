@@ -16,7 +16,11 @@ export interface RenderOpts {
   bw: boolean; // optimizado para blanco y negro
   lang: string;
   frame: boolean; // marco negro; sin él, la carta llega hasta la línea de corte
+  style: CardStyle; // diseño de las cartas
 }
+
+/** "classic": marco negro y pastillas; "retro": cada carta es una ventana de Windows 98. */
+export type CardStyle = "classic" | "retro";
 
 // Las anchuras se miden con las métricas de Helvetica-Bold de jsPDF, las mismas que usará
 // el PDF, para que la vista previa encaje igual que lo impreso.

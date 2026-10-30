@@ -14,7 +14,6 @@
       <header class="band">
         <span class="band-pill">PLACEHOLDR</span>
         <div class="band-right">
-          <button class="help" id="theme-toggle">★</button>
           <button class="help" id="guide-open" data-i18n-title="guide.open" data-i18n-aria="guide.open"
             title="How to use Placeholdr" aria-label="How to use Placeholdr">?</button>
           <div class="ui-lang" role="radiogroup" data-i18n-aria="ui.lang" aria-label="Interface language"></div>
@@ -110,6 +109,12 @@
           <div class="pair">
             <select id="lang" data-i18n-aria="cardLang" data-i18n-title="cardLang" aria-label="Card language"></select>
             <select id="paper" data-i18n-aria="paper" aria-label="Paper"><option value="a4">A4</option><option value="letter" data-i18n="paper.letter">Letter</option></select>
+          </div>
+          <div class="segmented" role="radiogroup" data-i18n-aria="cardStyle" aria-label="Card style">
+            <label data-i18n-title="cardStyle.classic.tip">
+              <input type="radio" name="card-style" value="classic" /><span data-i18n="cardStyle.classic">Classic</span></label>
+            <label data-i18n-title="cardStyle.retro.tip">
+              <input type="radio" name="card-style" value="retro" checked /><span data-i18n="cardStyle.retro">Retro</span></label>
           </div>
           <label class="switch"><input type="checkbox" id="bw" /><span class="track"></span><span data-i18n="bw">Black &amp; white</span></label>
           <label class="switch" data-i18n-title="frame.tip">
