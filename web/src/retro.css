@@ -214,6 +214,8 @@ html[data-theme="retro"] .wbtns i {
 html[data-theme="retro"] .wbtns svg { display: block; fill: #000; }
 html[data-theme="retro"] .wbtns i:last-child { margin-left: 2px; }
 html[data-theme="retro"] .sheet > svg { border-radius: 0; box-shadow: var(--sunken); padding: 2px; }
+/* bolsillo del binder (solo en pantalla) con línea continua, para no confundirlo con la discontinua del corte */
+html[data-theme="retro"] .pocket { stroke-dasharray: none; }
 html[data-theme="retro"] .sheet .label {
   margin-top: 3px; padding: 2px 6px; text-align: left; background: var(--w98); color: #000;
   border: 0; border-radius: 0; box-shadow: var(--sunken); font: 11px Tahoma, sans-serif; letter-spacing: 0;
