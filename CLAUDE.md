@@ -160,6 +160,15 @@ reproduce el diseño del CLI.
   créditos con licencias (pokemon-tcg-data, que no declara licencia; TCGdex, MIT; PokeAPI,
   BSD-3 en datos e imágenes de Nintendo; WikiDex; M PLUS 1p, OFL; jsPDF y svg2pdf.js, MIT).
   Si se añade una fuente de datos nueva, hay que añadirla a créditos y a privacidad.
+- **SEO y vista previa al compartir:** en `index.html` van la descripción (Pokémon TCG,
+  binder, placeholders, solo las que faltan), el enlace canónico, las etiquetas
+  Open Graph y `twitter:card` con `public/og-image.png` (1200×630, hecha con cartas del modo sin
+  imágenes para usar solo dibujo propio) y datos estructurados `WebApplication` en JSON-LD (no
+  es código, así que la CSP no lo afecta). Al pie de la vista previa hay un párrafo visible
+  (`about`) que explica qué es la web: Google ponía como resumen el texto de Ko-fi porque casi
+  todo lo demás lo dibuja el JavaScript. `public/robots.txt` y `public/sitemap.xml` apuntan a
+  `https://placeholdr.org/`. Para que Google lo recoja antes: Search Console, verificar el dominio
+  con un registro TXT en Cloudflare, enviar el sitemap y pedir la indexación.
 - **Licencia y README:** el código es **AGPL-3.0-only** (`LICENSE`, campo `license` de
   `web/package.json`): quien publique una versión modificada, también como web, tiene que
   publicar su código con la misma licencia. No cubre los datos ni las imágenes de las fuentes.
