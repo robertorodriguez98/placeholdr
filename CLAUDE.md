@@ -95,8 +95,11 @@ reproduce el diseño del CLI.
     de título con el nombre en degradado del color del tipo o del subtipo y los botones _ □ ×; una
     fila con las etiquetas (tipo, ex, ENTRENADOR + subtipo, ACE SPEC); la imagen en un marco
     hundido, teñido en Entrenadores y Energías; y una barra de estado con el número, la rareza y
-    la variante. Con "Bordes negros" lleva el marco negro alrededor. En B/N, la barra de título
-    es blanca con contorno y no hay grises. Los Partidarios con busto llenan el marco con un
+    la variante. Con "Bordes negros" lleva el marco negro alrededor. **En B/N** imita los
+    sistemas de 1 bit (el Mac original): barra de título rayada con el nombre en un hueco blanco,
+    casilla de cerrar a la izquierda y de zoom a la derecha, marcos dobles y etiquetas blancas con
+    sombra negra dura; sin grises de fondo, todo son líneas (`monoTitleBar`, y `bevel` y `pill`
+    en modo B/N). Los Partidarios con busto llenan el marco con un
     retrato grande, apoyado abajo.
     Las etiquetas (tipo, ex, subtipo, rareza) son rectas con bisel en vez de pastillas
     redondeadas: lo decide `pill()` según `o.style`.

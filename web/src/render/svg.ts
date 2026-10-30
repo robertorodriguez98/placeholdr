@@ -87,8 +87,9 @@ export function pill(
   const retro = o.style === "retro";
   const r = retro ? 0 : h / 2.6;
   let svg: string;
-  if (o.bw && !isBlack(bg)) {
-    svg = `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(r)}" `
+  if (o.bw && (retro || !isBlack(bg))) {
+    svg = (retro ? `<rect x="${f(x + 0.45)}" y="${f(y + 0.45)}" width="${f(w)}" height="${f(h)}" fill="#000"/>` : "")
+      + `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(r)}" `
       + `fill="#fff" stroke="#000" stroke-width="${f(0.9 * PT)}"/>`;
     fg = BLACK;
   } else {

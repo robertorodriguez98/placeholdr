@@ -2,13 +2,16 @@
 // nombre (degradado del color del tipo o del subtipo) y los botones _ □ ×, una fila con las
 // etiquetas, la imagen dentro de un marco hundido y una barra de estado con el número, la
 // rareza y la variante. Usa las mismas imágenes y datos que el estilo clásico (cards.ts).
+// En blanco y negro imita los sistemas de 1 bit (el Mac original): barra de título rayada con el
+// nombre en un hueco blanco, casilla de cerrar a la izquierda y de zoom a la derecha, bordes
+// dobles y etiquetas con sombra negra dura. Todo son líneas, así que gasta poca tinta.
 import { BW_INK, CARD_H, CARD_W, TYPE_COLORS, type RGB } from "../config";
 import {
   BORDER, CX, energyOrb, energyType, image, itemIcon, trainerStyle, type Asset, type CardSpec, type PokemonSpec,
 } from "./cards";
 import { pixelIcon } from "./pixels";
 import {
-  GOLD_BADGE, PT, circle, css, fitFont, mix, num as f, pill, rarityMark, star, text, type RenderOpts,
+  GOLD_BADGE, PT, circle, css, fitFont, mix, num as f, pill, rarityMark, star, text, textWidth, type RenderOpts,
 } from "./svg";
 
 const FACE: RGB = [0.83, 0.82, 0.78]; // gris de las ventanas (#d4d0c8)
@@ -17,7 +20,9 @@ const WHITE: RGB = [1, 1, 1];
 /** Bisel de Windows: hacia fuera (botones, ventanas) o hacia dentro (campos, marcos). */
 export function bevel(x: number, y: number, w: number, h: number, raised: boolean, o: RenderOpts, s = 0.3): string {
   if (o.bw) {
-    return `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="none" stroke="#000" stroke-width="${f(s)}"/>`;
+    const line = (i: number, sw: number) =>
+      `<rect x="${f(x + i)}" y="${f(y + i)}" width="${f(w - 2 * i)}" height="${f(h - 2 * i)}" fill="none" stroke="#000" stroke-width="${f(sw)}"/>`;
+    return raised ? line(s / 2, s) : line(s / 2, s * 0.8) + line(s * 2.2, s * 0.35);
   }
   const [lt, rb, lt2, rb2] = raised ? ["#fff", "#404040", "#dfdfdf", "#808080"] : ["#808080", "#fff", "#404040", "#dfdfdf"];
   const edge = (i: number, a: string, b: string) => {
@@ -75,6 +80,28 @@ function look(spec: CardSpec, o: RenderOpts): Look {
 }
 
 /**
+ * Barra de título de 1 bit: rayas horizontales, casilla de cerrar a la izquierda, de zoom a la
+ * derecha y el nombre centrado en un hueco blanco.
+ */
+function monoTitleBar(x: number, y: number, w: number, h: number, title: string): string {
+  const box = 3.6, pad = 1.4, line = `stroke="#000" stroke-width="0.25"`;
+  let svg = rect(x, y, w, h, "#fff", `stroke="#000" stroke-width="0.35"`);
+  for (let yy = y + 1.1; yy < y + h - 0.8; yy += 0.75) {
+    svg += `<path d="M${f(x + 0.9)} ${f(yy)}H${f(x + w - 0.9)}" ${line}/>`;
+  }
+  const cy = y + h / 2;
+  const square = (bx: number) => rect(bx - 0.6, cy - box / 2 - 0.4, box + 1.2, box + 0.8, "#fff")
+    + rect(bx, cy - box / 2, box, box, "#fff", `stroke="#000" stroke-width="0.3"`);
+  svg += square(x + 2.2); // cerrar
+  const zx = x + w - 2.2 - box;
+  svg += square(zx) + rect(zx, cy - box / 2, box * 0.55, box * 0.55, "none", line); // zoom
+  const fs = fitFont(title, 9, w - 2 * (box + 4.2), 5);
+  const tw = textWidth(title, fs) + 2 * pad;
+  svg += rect(x + w / 2 - tw / 2, y + 0.5, tw, h - 1, "#fff");
+  return svg + text(x + w / 2, cy + fs * 0.35 * PT, title, fs, [0, 0, 0], "middle");
+}
+
+/**
  * Pokémon sin imagen: el recuadro de "imagen no cargada" de los navegadores antiguos, con su
  * icono roto en la esquina y el texto alternativo (número de la Pokédex y nombre del fichero).
  */
@@ -98,18 +125,18 @@ export function drawRetro(spec: CardSpec, asset: Asset, o: RenderOpts, id: strin
   // barra de título
   const tx = m + 1.1, ty = m + 1.1, tw = W - 2.2, th = 7.2;
   if (o.bw) {
-    svg += rect(tx, ty, tw, th, "#fff", `stroke="#000" stroke-width="${f(0.3)}"`);
+    svg += monoTitleBar(tx, ty, tw, th, L.title);
   } else {
     svg += `<defs><linearGradient id="tb-${id}" x1="0" y1="0" x2="1" y2="0">`
       + `<stop offset="0" stop-color="${css(L.col.map((v) => v * 0.8) as RGB)}"/>`
       + `<stop offset="1" stop-color="${css(mix(L.col, 0.45))}"/></linearGradient></defs>`
       + rect(tx, ty, tw, th, `url(#tb-${id})`);
   }
-  const btn = titleButtons(tx + tw - 0.8, ty + th / 2, o);
-  svg += btn.svg;
-  const maxW = tw - btn.w - 3.4;
-  const fs = fitFont(L.title, 9, maxW, 5);
-  svg += text(tx + 1.6, ty + th / 2 + fs * 0.35 * PT, L.title, fs, o.bw ? [0, 0, 0] : WHITE);
+  if (!o.bw) {
+    const btn = titleButtons(tx + tw - 0.8, ty + th / 2, o);
+    const fs = fitFont(L.title, 9, tw - btn.w - 3.4, 5);
+    svg += btn.svg + text(tx + 1.6, ty + th / 2 + fs * 0.35 * PT, L.title, fs, WHITE);
+  }
 
   // fila de etiquetas (tipo, subtipo, ex...)
   svg += L.labels(ty + th + 3.4, tx + 0.8, tx + tw - 0.8);
