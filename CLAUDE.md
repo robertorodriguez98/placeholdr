@@ -67,25 +67,40 @@ reproduce el diseño del CLI.
   marcas se guardan en `localStorage` (`placeholdr:owned`) y se pueden exportar o importar en
   CSV: `coleccion,numero,variante,nombre`, separado por comas, punto y coma o tabuladores.
   Hay botones para marcar o desmarcar todas las cartas de la selección. Está en `src/checklist.ts`.
-- **Apariencia:** la interfaz imita una carta de Partidario. El panel lateral es la propia
+- **Apariencia (diseño anterior, guardado):** antes del tema retro, la interfaz imitaba una
+  carta de Partidario, y sigue entera en `style.css`, que es la base sobre la que `retro.css`
+  aplica sus cambios. Para recuperarla: `THEME = "card"` en `src/theme.ts`. El panel lateral era la propia
   carta: marco negro, banda naranja con la pastilla "PLACEHOLDR" y el selector EN/ES, rayas, título subrayado y un
   medallón con un binder. Los títulos de sección son pastillas negras, como el número de
   colección, y los botones tienen sombra dura. La vista previa va sobre una "tapa de binder"
   oscura, con una barra naranja fija y las hojas de dos en dos, como un binder abierto. Los
   colores están en variables CSS, todos sacados del diseño de las cartas (`--orange`,
   `--stripe`, `--green` del Estadio, `--gold` de las rarezas).
-- **Tema retro** (botón ★ de la banda; × para volver): la web de 2003 al estilo
-  GeoCities/Neocities. El usuario lo pidió en "caos total" y como tema opcional; el de por
-  defecto sigue siendo la carta de Partidario. `src/theme.ts` pone `data-theme="retro"|"card"` en
-  `<html>` (guardado en `placeholdr:theme`), cuenta las visitas de este navegador (una por sesión,
+- **Tema retro (el único):** la web de 2003 al estilo GeoCities/Neocities, en versión "caos
+  total" (lo pidió así el usuario; primero fue opcional con un botón ★ y luego quedó como único).
+  `src/theme.ts` fija `data-theme="retro"` en `<html>` (constante `THEME`), cuenta las visitas de este navegador (una por sesión,
   `placeholdr:visits`: es un contador real, no uno inventado) y pinta estrellitas tras el ratón
   (no en táctil ni con movimiento reducido). `src/retro.css` lo cuelga todo de
   `html[data-theme="retro"]`: ventanas de Windows 98 con bisel (`--raised`/`--sunken`), fondo de
   estrellas en SVG en mosaico, títulos arcoíris, bienvenida parpadeante, marquesina, botones de
   88×31 (hechos con CSS, sin imágenes de terceros), "under construction" y un libro de visitas
   que lleva a los issues de GitHub. Lo que solo existe en ese tema lleva la clase `.retro-only`.
-  Las cartas y el PDF no cambian. Solo usa fuentes del sistema (Tahoma, Comic Sans, Times), así
+  Cada hoja de la vista previa es una ventana (`.sheet-bar` con `binder_<set>_NN.pdf`, la hoja en
+  un marco hundido y "Hoja 1/14" como barra de estado). Solo usa fuentes del sistema (Tahoma, Comic Sans, Times), así
   que no añade nada a la CSP ni a la privacidad.
+- **Estilo de carta** ("Estilo de carta" en Impresión, `state.cardStyle`, `RenderOpts.style`):
+  - *Retro* (por defecto, `src/render/retro.ts`): cada carta es una ventana de Windows 98. Barra
+    de título con el nombre en degradado del color del tipo o del subtipo y los botones _ □ ×; una
+    fila con las etiquetas (tipo, ex, ENTRENADOR + subtipo, ACE SPEC); la imagen en un marco
+    hundido, teñido en Entrenadores y Energías; y una barra de estado con el número, la rareza y
+    la variante. Con "Bordes negros" lleva el marco negro alrededor. En B/N, la barra de título
+    es blanca con contorno y no hay grises. Los Partidarios con busto llenan el marco con un
+    retrato grande, apoyado abajo.
+  - *Clásico* (`drawPokemon`/`drawTrainer`/`drawEnergy` de `cards.ts`): el diseño de siempre.
+    El busto de los Partidarios pasó del círculo pequeño a un cuadro de 38 mm con esquinas
+    redondeadas.
+  - Probado con Pitch Black: la vista previa y el PDF (degradados y recortes incluidos) salen
+    bien en color y en B/N.
 - **Cartas juntas:** van pegadas, sin hueco, así cada corte separa dos a la vez (8 cortes por
   hoja en vez de 12) y no quedan tiras sueltas. Es el único modo: el hueco de 2 mm del CLI se
   quitó porque no aportaba nada (el margen de error ya lo da la banda negra de los bordes). Las
@@ -260,11 +275,12 @@ slug exacto en `items.csv`; regex de `ITEM_KEYWORDS` (gana la primera); Partidar
 
 ## Decisiones de diseño (y lo que el usuario rechazó)
 
-- Estética base: marco negro grueso, nombre subrayado y número en pastilla negra, a partir de
-  una imagen de referencia del usuario. Hay que mantenerla.
+- Estética clásica: marco negro grueso, nombre subrayado y número en pastilla negra, a partir
+  de una imagen de referencia del usuario. Se mantiene como estilo "Clásico"; el usuario pidió
+  además el estilo "Retro" (ventana de Windows 98), y que se pueda elegir.
 - **Rechazado:** recortar la ilustración de la propia carta para los Partidarios. Rompía el
-  diseño. Lo que quiere es **el busto del personaje dentro del mismo círculo que los iconos de
-  objeto**. Además, nunca se reproducen escaneos ni ilustraciones de cartas (ver la página legal).
+  diseño. Lo que quiere es **el busto del personaje**: en el estilo clásico, en un cuadro de
+  38 mm (antes, el círculo de los objetos); en el retro, llenando el marco de la ventana. Además, nunca se reproducen escaneos ni ilustraciones de cartas (ver la página legal).
 - Los iconos de las cartas que no son Pokémon deben ser **objetos de los juegos**. Los iconos
   vectoriales son el respaldo y el modo sin imágenes.
 - Las energías no usan el símbolo oficial de energía: el orbe es un diseño propio.
