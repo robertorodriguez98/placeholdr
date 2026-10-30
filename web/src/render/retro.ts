@@ -4,11 +4,11 @@
 // rareza y la variante. Usa las mismas imágenes y datos que el estilo clásico (cards.ts).
 import { BW_INK, CARD_H, CARD_W, TYPE_COLORS, type RGB } from "../config";
 import {
-  BORDER, CX, dexBadge, energyOrb, energyType, image, itemIcon, trainerStyle, vectorIcon,
-  type Asset, type CardSpec,
+  BORDER, CX, energyOrb, energyType, image, itemIcon, trainerStyle, type Asset, type CardSpec, type PokemonSpec,
 } from "./cards";
+import { pixelIcon } from "./pixels";
 import {
-  GOLD_BADGE, PT, circle, css, fitFont, mix, num as f, pill, rarityMark, text, type RenderOpts,
+  GOLD_BADGE, PT, circle, css, fitFont, mix, num as f, pill, rarityMark, star, text, type RenderOpts,
 } from "./svg";
 
 const FACE: RGB = [0.83, 0.82, 0.78]; // gris de las ventanas (#d4d0c8)
@@ -74,6 +74,19 @@ function look(spec: CardSpec, o: RenderOpts): Look {
   return { col, title: spec.name, tint: mix(col, 0.9), labels: (cy, l) => pill(label, 6, { left: l, cy }, o, { bg: col }).svg };
 }
 
+/**
+ * Pokémon sin imagen: el recuadro de "imagen no cargada" de los navegadores antiguos, con su
+ * icono roto en la esquina y el texto alternativo (número de la Pokédex y nombre del fichero).
+ */
+function brokenImage(spec: PokemonSpec, cy: number, o: RenderOpts): string {
+  const side = 34, x = CX - side / 2, y = cy - side / 2;
+  const num = spec.dex ? String(spec.dex).padStart(4, "0") : null;
+  return rect(x, y, side, side, "#fff") + bevel(x, y, side, side, false, o, 0.25)
+    + pixelIcon("broken", x + 4.5, y + 4.5, 5.5, [0, 0, 0], o.bw)
+    + text(CX, cy + 1.8, num ? `#${num}` : "?", num ? 12 : 18, [0.2, 0.2, 0.2], "middle")
+    + (num ? text(CX, cy + 7.5, `${num}.gif`, 6, [0.5, 0.5, 0.5], "middle") : "");
+}
+
 export function drawRetro(spec: CardSpec, asset: Asset, o: RenderOpts, id: string): string {
   const L = look(spec, o);
   const m = o.frame ? BORDER : 0; // con marco negro, la ventana va dentro
@@ -109,7 +122,7 @@ export function drawRetro(spec: CardSpec, asset: Asset, o: RenderOpts, id: strin
     const box = Math.min(vw, vh) - 8;
     if (asset.type === "art") svg += image(asset.href, CX - box / 2, cy - box / 2, box, box);
     else if (asset.type === "pending") svg += circle(CX, cy, box * 0.38, "#eceef1");
-    else svg += dexBadge(spec, cy, box * 0.38, o);
+    else svg += brokenImage(spec, cy, o);
   } else if (spec.type === "trainer") {
     if (asset.type === "bust") { // retrato grande: llena el marco, apoyado abajo
       const side = Math.min(vw, vh) - 0.8;
@@ -117,12 +130,16 @@ export function drawRetro(spec: CardSpec, asset: Asset, o: RenderOpts, id: strin
         + image(asset.href, CX - side / 2, vy + vh - side - 0.4, side, side, `clip-path="url(#rv-${id})"`)
         + bevel(vx, vy, vw, vh, false, o, 0.35);
     } else if (asset.type === "item") svg += itemIcon(asset.href, cy, 17, L.col, o);
-    else if (asset.type === "vector") svg += vectorIcon(trainerStyle(spec.subtypes).icon, CX, cy, 17, L.col, o);
+    else if (asset.type === "vector") svg += pixelIcon(trainerStyle(spec.subtypes).icon, CX, cy, 30, L.col, o.bw);
     else svg += circle(CX, cy, 17, css(mix(L.col, 0.82)));
   } else {
-    const item = asset.type === "item" ? asset.href : null;
-    svg += energyOrb(CX, cy, 17, L.col, spec.subtypes.includes("Special"), item === null, o);
-    if (item) svg += image(item, CX - 12, cy - 12, 24, 24);
+    const special = spec.subtypes.includes("Special");
+    if (asset.type === "item") {
+      svg += energyOrb(CX, cy, 17, L.col, special, false, o) + image(asset.href, CX - 12, cy - 12, 24, 24);
+    } else { // sin imagen: gema en pixel art, con destellos si es especial
+      svg += pixelIcon("gem", CX, cy, 28, L.col, o.bw);
+      if (special) for (const [dx, dy] of [[-15, -10], [14, -13], [13, 12]]) svg += star(CX + dx, cy + dy, 2, 4, 0.3, "#c79e26");
+    }
   }
 
   // barra de estado: número | rareza | variante
