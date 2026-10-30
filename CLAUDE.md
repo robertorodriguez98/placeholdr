@@ -86,7 +86,9 @@ reproduce el diseño del CLI.
   88×31 (hechos con CSS, sin imágenes de terceros), "under construction" y un libro de visitas
   que lleva a los issues de GitHub. Lo que solo existe en ese tema lleva la clase `.retro-only`.
   Cada hoja de la vista previa es una ventana (`.sheet-bar` con `binder_<set>_NN.pdf`, la hoja en
-  un marco hundido y "Hoja 1/14" como barra de estado). Solo usa fuentes del sistema (Tahoma, Comic Sans, Times), así
+  un marco hundido y "Hoja 1/14" como barra de estado). El sello "LA TENGO" de la vista previa es un cuadro de
+  diálogo de Windows 98 (`retroStamp` en `page.ts`, con una casilla marcada y el botón OK); el
+  sello de goma verde (`ownedStamp`) es el del diseño anterior. Solo usa fuentes del sistema (Tahoma, Comic Sans, Times), así
   que no añade nada a la CSP ni a la privacidad.
 - **Estilo de carta** ("Estilo de carta" en Impresión, `state.cardStyle`, `RenderOpts.style`):
   - *Retro* (por defecto, `src/render/retro.ts`): cada carta es una ventana de Windows 98. Barra
@@ -96,6 +98,8 @@ reproduce el diseño del CLI.
     la variante. Con "Bordes negros" lleva el marco negro alrededor. En B/N, la barra de título
     es blanca con contorno y no hay grises. Los Partidarios con busto llenan el marco con un
     retrato grande, apoyado abajo.
+    Las etiquetas (tipo, ex, subtipo, rareza) son rectas con bisel en vez de pastillas
+    redondeadas: lo decide `pill()` según `o.style`.
   - *Clásico* (`drawPokemon`/`drawTrainer`/`drawEnergy` de `cards.ts`): el diseño de siempre.
     El busto de los Partidarios pasó del círculo pequeño a un cuadro de 38 mm con esquinas
     redondeadas.
