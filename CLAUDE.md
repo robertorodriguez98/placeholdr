@@ -69,7 +69,8 @@ reproduce el diseño del CLI.
   Hay botones para marcar o desmarcar todas las cartas de la selección. Está en `src/checklist.ts`.
 - **Apariencia (diseño anterior, guardado):** antes del tema retro, la interfaz imitaba una
   carta de Partidario, y sigue entera en `style.css`, que es la base sobre la que `retro.css`
-  aplica sus cambios. Para recuperarla: `THEME = "card"` en `src/theme.ts`. El panel lateral era la propia
+  aplica sus cambios. Para recuperarla: `THEME = "card"` en `src/theme.ts` y quitar
+  `data-theme="retro"` del `<html>` de `index.html`. El panel lateral era la propia
   carta: marco negro, banda naranja con la pastilla "PLACEHOLDR" y el selector EN/ES, rayas, título subrayado y un
   medallón con un binder. Los títulos de sección son pastillas negras, como el número de
   colección, y los botones tienen sombra dura. La vista previa va sobre una "tapa de binder"
@@ -78,7 +79,9 @@ reproduce el diseño del CLI.
   `--stripe`, `--green` del Estadio, `--gold` de las rarezas).
 - **Tema retro (el único):** la web de 2003 al estilo GeoCities/Neocities, en versión "caos
   total" (lo pidió así el usuario; primero fue opcional con un botón ★ y luego quedó como único).
-  `src/theme.ts` fija `data-theme="retro"` en `<html>` (constante `THEME`), cuenta las visitas de este navegador (una por sesión,
+  `<html data-theme="retro">` va ya en `index.html` (si solo lo pusiera `src/theme.ts`, la página
+  pintaría un instante el diseño anterior antes de ejecutar el script); `theme.ts` lo confirma
+  (constante `THEME`), cuenta las visitas de este navegador (una por sesión,
   `placeholdr:visits`: es un contador real, no uno inventado) y pinta estrellitas tras el ratón
   (no en táctil ni con movimiento reducido). `src/retro.css` lo cuelga todo de
   `html[data-theme="retro"]`: ventanas de Windows 98 con bisel (`--raised`/`--sunken`), fondo de
