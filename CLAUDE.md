@@ -100,6 +100,14 @@ reproduce el diseño del CLI.
     retrato grande, apoyado abajo.
     Las etiquetas (tipo, ex, subtipo, rareza) son rectas con bisel en vez de pastillas
     redondeadas: lo decide `pill()` según `o.style`.
+    Sin imágenes (`src/render/pixels.ts`): los Pokémon llevan el recuadro de "imagen no
+    cargada" de los navegadores antiguos (icono roto en la esquina y, como texto alternativo,
+    `#0025` y `0025.gif`); los Entrenadores, iconos en pixel art de 12×12 (persona, cápsula,
+    llave inglesa, estadio con bandera) en el color del subtipo; y las Energías, una gema en
+    pixel art del color del tipo, con destellos si es especial. Los sprites son rejillas de
+    caracteres (`k` contorno, `c` color, `l` aclarado, `w` blanco) que se pintan por tramos
+    solapados para que no salgan costuras al imprimir. El estilo clásico sigue con sus iconos
+    vectoriales.
   - *Clásico* (`drawPokemon`/`drawTrainer`/`drawEnergy` de `cards.ts`): el diseño de siempre.
     El busto de los Partidarios pasó del círculo pequeño a un cuadro de 38 mm con esquinas
     redondeadas.
