@@ -1,7 +1,8 @@
 // Tema de la interfaz: la web de 2003 al estilo Neocities/GeoCities (retro.css), que es el
 // único. El diseño anterior (la carta de Partidario) sigue entero en style.css, que es la base
-// del retro: para recuperarlo basta con poner THEME = "card" (el atributo data-theme de <html>
-// deja de ser "retro" y no se aplica nada de retro.css).
+// del retro: para recuperarlo basta con poner THEME = "card" aquí y quitar data-theme="retro" del
+// <html> de index.html. El atributo va también en el HTML para que la página no pinte el diseño
+// anterior durante los milisegundos que tarda en ejecutarse este script.
 export type Theme = "card" | "retro";
 
 const THEME: Theme = "retro";
