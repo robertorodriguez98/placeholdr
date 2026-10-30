@@ -15,7 +15,7 @@ const FACE: RGB = [0.83, 0.82, 0.78]; // gris de las ventanas (#d4d0c8)
 const WHITE: RGB = [1, 1, 1];
 
 /** Bisel de Windows: hacia fuera (botones, ventanas) o hacia dentro (campos, marcos). */
-function bevel(x: number, y: number, w: number, h: number, raised: boolean, o: RenderOpts, s = 0.3): string {
+export function bevel(x: number, y: number, w: number, h: number, raised: boolean, o: RenderOpts, s = 0.3): string {
   if (o.bw) {
     return `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="none" stroke="#000" stroke-width="${f(s)}"/>`;
   }
@@ -28,7 +28,7 @@ function bevel(x: number, y: number, w: number, h: number, raised: boolean, o: R
   return edge(s / 2, lt, rb) + edge(s * 1.5, lt2, rb2);
 }
 
-const rect = (x: number, y: number, w: number, h: number, fill: string, extra = "") =>
+export const rect = (x: number, y: number, w: number, h: number, fill: string, extra = "") =>
   `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="${fill}" ${extra}/>`;
 
 /** Botones _ □ × de la barra de título, alineados a la derecha. Devuelve su anchura total. */
