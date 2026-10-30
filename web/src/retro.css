@@ -208,11 +208,12 @@ html[data-theme="retro"] .sheet-bar {
 html[data-theme="retro"] .sheet-bar > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 html[data-theme="retro"] .wbtns { display: flex; gap: 2px; flex: none; }
 html[data-theme="retro"] .wbtns i {
-  width: 16px; height: 14px; display: grid; place-items: center; font: bold 10px/1 Tahoma, sans-serif;
-  font-style: normal; color: #000; background: var(--w98); box-shadow: var(--raised);
+  width: 16px; height: 14px; display: grid; place-items: center;
+  background: var(--w98); box-shadow: var(--raised);
 }
+html[data-theme="retro"] .wbtns svg { display: block; fill: #000; }
 html[data-theme="retro"] .wbtns i:last-child { margin-left: 2px; }
-html[data-theme="retro"] .sheet svg { border-radius: 0; box-shadow: var(--sunken); padding: 2px; }
+html[data-theme="retro"] .sheet > svg { border-radius: 0; box-shadow: var(--sunken); padding: 2px; }
 html[data-theme="retro"] .sheet .label {
   margin-top: 3px; padding: 2px 6px; text-align: left; background: var(--w98); color: #000;
   border: 0; border-radius: 0; box-shadow: var(--sunken); font: 11px Tahoma, sans-serif; letter-spacing: 0;
