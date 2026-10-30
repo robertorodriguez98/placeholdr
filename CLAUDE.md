@@ -85,6 +85,12 @@ reproduce el diseño del CLI.
   estrellas en SVG en mosaico, títulos arcoíris, bienvenida parpadeante, marquesina, botones de
   88×31 (hechos con CSS, sin imágenes de terceros), "under construction" y un libro de visitas
   que lleva a los issues de GitHub. Lo que solo existe en ese tema lleva la clase `.retro-only`.
+  **Logo:** pixel art de 16×16 (en `index.html`, como favicon en data URI y dentro del
+  medallón): una hoja de binder 3×3 con una carta de color con brillo en cada bolsillo y el del
+  centro vacío, con el damero gris y blanco de "transparente" (el placeholder). En el panel gira
+  sobre un anillo arcoíris que da vueltas, con un destello que parpadea. Se generó con un script
+  de Python desde una rejilla; para cambiarlo, editar los `<rect>` o regenerarlo. El logo
+  anterior (binder naranja) solo queda en el historial de git.
   Cada hoja de la vista previa es una ventana (`.sheet-bar` con `binder_<set>_NN.pdf`, la hoja en
   un marco hundido y "Hoja 1/14" como barra de estado). El sello "LA TENGO" de la vista previa es un cuadro de
   diálogo de Windows 98 (`retroStamp` en `page.ts`, con una casilla marcada y el botón OK); el
