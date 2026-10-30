@@ -106,6 +106,7 @@ h1 {
   transition: transform 0.4s cubic-bezier(.3,1.6,.5,1);
 }
 .medallion svg { width: 62px; height: 62px; }
+.logo-back { display: none; } /* la cara de atrás del logo solo se usa en el tema retro */
 .hero:hover .medallion { transform: rotate(-8deg) scale(1.05); }
 
 .block { display: flex; flex-direction: column; gap: 10px; }
