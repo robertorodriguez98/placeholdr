@@ -14,6 +14,7 @@
       <header class="band">
         <span class="band-pill">PLACEHOLDR</span>
         <div class="band-right">
+          <button class="help" id="theme-toggle">★</button>
           <button class="help" id="guide-open" data-i18n-title="guide.open" data-i18n-aria="guide.open"
             title="How to use Placeholdr" aria-label="How to use Placeholdr">?</button>
           <div class="ui-lang" role="radiogroup" data-i18n-aria="ui.lang" aria-label="Interface language"></div>
@@ -21,6 +22,7 @@
       </header>
       <div class="panel-body">
         <div class="hero">
+          <p class="retro-only welcome" data-i18n="retro.welcome">~*~ Welcome 2 Placeholdr ~*~</p>
           <h1 data-i18n="hero">Fill the gaps in your Pokémon TCG binder</h1>
           <div class="medallion" aria-hidden="true">
             <svg viewBox="0 0 64 64">
@@ -137,7 +139,22 @@
         </div>
         <div class="stage-pills" id="stage-pills"></div>
       </header>
+      <div class="retro-only marquee" aria-hidden="true"><span data-i18n="retro.marquee">★ NEW!!! Japanese sets ★ 100% FREE ★ no cookies, no ads ★ print only the cards u r missing ★ thx 4 visiting!!! ★</span></div>
       <div id="preview" class="preview"></div>
+      <!-- pie de web de 2003: solo se ve en el tema retro -->
+      <div class="retro-only webfooter">
+        <p class="construction"><span data-i18n="retro.construction">Under construction</span></p>
+        <p class="counter"><span data-i18n="retro.visits">Visits from this browser</span>: <span class="odometer" id="visits">000001</span></p>
+        <div class="badges">
+          <a class="b88 b-home" href="./">PLACEHOLDR<small>.ORG</small></a>
+          <span class="b88 b-nocookie">NO COOKIES<small>NO ADS</small></span>
+          <a class="b88 b-agpl" href="https://github.com/robertorodriguez98/placeholdr/blob/main/LICENSE" target="_blank" rel="noopener">AGPL v3<small>OPEN SOURCE</small></a>
+          <a class="b88 b-kofi" href="https://ko-fi.com/krowno16" target="_blank" rel="noopener">☕ KO-FI<small>BUY ME A COFFEE</small></a>
+        </div>
+        <p class="best" data-i18n="retro.best">Best viewed at 800×600 in any browser</p>
+        <a class="guestbook" href="https://github.com/robertorodriguez98/placeholdr/issues" target="_blank" rel="noopener"
+          data-i18n="retro.guestbook" data-i18n-title="retro.guestbook.tip">📖 Sign my guestbook</a>
+      </div>
       <div class="support">
         <p data-i18n="support">Placeholdr is free and will stay free. If it&#x27;s useful to you, you can help cover the domain and server.</p>
         <a class="kofi" href="https://ko-fi.com/krowno16" target="_blank" rel="noopener" data-i18n="donate.cta">☕ Support on Ko-fi</a>
