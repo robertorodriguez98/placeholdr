@@ -14,7 +14,9 @@ Los comentarios del código y los mensajes de commit están en español. La inte
 está en inglés por defecto, con español como alternativa (`src/i18n.ts`). Se trabaja con una
 rama y un pull request por cambio (`gh pr create` / `gh pr merge --merge --delete-branch`).
 Las notas personales del mantenedor y de su equipo van en `CLAUDE.local.md`, que no se sube
-al repo.
+al repo. **El repo es público:** ningún dato personal (correos que no sean
+`contact@placeholdr.org`, cuentas, rutas del equipo, IPs) en el código, en este fichero ni en los
+mensajes de commit o de PR; van en `CLAUDE.local.md`.
 
 ---
 
