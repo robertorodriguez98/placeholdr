@@ -16,7 +16,11 @@ export interface RenderOpts {
   bw: boolean; // optimizado para blanco y negro
   lang: string;
   frame: boolean; // marco negro; sin él, la carta llega hasta la línea de corte
+  style: CardStyle; // diseño de las cartas
 }
+
+/** "classic": marco negro y pastillas; "retro": cada carta es una ventana de Windows 98. */
+export type CardStyle = "classic" | "retro";
 
 // Las anchuras se miden con las métricas de Helvetica-Bold de jsPDF, las mismas que usará
 // el PDF, para que la vista previa encaje igual que lo impreso.
@@ -69,7 +73,10 @@ export function text(
 
 export interface PillPos { cx?: number; left?: number; right?: number; cy: number }
 
-/** Pastilla redondeada con texto. En B/N, cualquier pastilla que no sea negra pasa a contorno. */
+/**
+ * Pastilla redondeada con texto. En B/N, cualquier pastilla que no sea negra pasa a contorno.
+ * En el estilo retro es una etiqueta recta con bisel, como un botón de Windows 98.
+ */
 export function pill(
   label: string, sizePt: number, pos: PillPos, o: RenderOpts,
   { bg = BLACK, fg = WHITE, h = 5.5, pad = 2.4 }: { bg?: RGB; fg?: RGB; h?: number; pad?: number } = {},
@@ -77,14 +84,21 @@ export function pill(
   const w = textWidth(label, sizePt) + 2 * pad;
   const x = pos.left ?? (pos.right !== undefined ? pos.right - w : pos.cx! - w / 2);
   const y = pos.cy - h / 2;
-  const r = h / 2.6;
+  const retro = o.style === "retro";
+  const r = retro ? 0 : h / 2.6;
   let svg: string;
-  if (o.bw && !isBlack(bg)) {
-    svg = `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(r)}" `
+  if (o.bw && (retro || !isBlack(bg))) {
+    svg = (retro ? `<rect x="${f(x + 0.45)}" y="${f(y + 0.45)}" width="${f(w)}" height="${f(h)}" fill="#000"/>` : "")
+      + `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(r)}" `
       + `fill="#fff" stroke="#000" stroke-width="${f(0.9 * PT)}"/>`;
     fg = BLACK;
   } else {
     svg = `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(r)}" fill="${css(bg)}"/>`;
+    if (retro) { // luz arriba a la izquierda y sombra abajo a la derecha
+      const s = 0.3, x1 = x + w - s / 2, y1 = y + h - s / 2;
+      svg += `<path d="M${f(x + s / 2)} ${f(y1)}V${f(y + s / 2)}H${f(x1)}" fill="none" stroke="#fff" stroke-opacity="0.55" stroke-width="${f(s)}"/>`
+        + `<path d="M${f(x1)} ${f(y + s / 2)}V${f(y1)}H${f(x + s / 2)}" fill="none" stroke="#000" stroke-opacity="0.45" stroke-width="${f(s)}"/>`;
+    }
   }
   svg += text(x + w / 2, pos.cy + sizePt * 0.35 * PT, label, sizePt, fg, "middle");
   return { svg, x, w };

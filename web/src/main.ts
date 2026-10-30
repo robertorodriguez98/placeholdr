@@ -1,5 +1,7 @@
 import "./migrate"; // la primera: pasa los datos guardados con el nombre antiguo
+import { countVisit, startSparkles } from "./theme"; // antes de pintar
 import "./style.css";
+import "./retro.css";
 import { LANGS, TYPE_COLORS, TYPE_ES, type Lang, type Paper } from "./config";
 import {
   groupBySeries, loadSetCards, loadSets, loadTranslations, normNum, selectCards,
@@ -16,7 +18,7 @@ import { UI_LANGS, applyStatic, plural, setUiLang, t, uiLang, type UiLang } from
 import type { CardSpec } from "./render/cards";
 import { PER_PAGE, geometry } from "./render/layout";
 import { cardInner, pageSvg, type PlacedCard } from "./render/page";
-import type { RenderOpts } from "./render/svg";
+import type { CardStyle, RenderOpts } from "./render/svg";
 
 // ---------------------------------------------------------------- estado
 type Region = "intl" | "ja";
@@ -38,13 +40,14 @@ interface State {
   cutlines: boolean;
   frame: boolean;     // marco negro de las cartas
   images: boolean;    // artwork, bustos e iconos de objeto; sin ellos, solo dibujos vectoriales
+  cardStyle: CardStyle; // clásico (marco negro) o retro (ventana de Windows 98)
   hideOwned: boolean; // checklist: imprimir solo las que faltan
 }
 
 const DEFAULTS: State = {
   mode: "set", region: "intl", setId: "", setIdJa: "", only: ["pokemon", "trainer", "energy"], collection: "complete",
   dexBy: "gen", gens: [1], range: "1-151", ids: "", lang: uiLang, paper: "a4", bw: false,
-  cutlines: true, frame: false, images: true, hideOwned: false,
+  cutlines: true, frame: false, images: true, cardStyle: "retro", hideOwned: false,
 };
 const STORE_KEY = "placeholdr:state";
 
@@ -106,6 +109,10 @@ const legal = $<HTMLDialogElement>("#legal");
 $<HTMLButtonElement>("#guide-open").onclick = () => guide.showModal();
 $<HTMLButtonElement>("#legal-open").onclick = () => legal.showModal();
 for (const d of [guide, legal]) d.addEventListener("click", (e) => { if (e.target === d) d.close(); });
+// web retro: contador de visitas de este navegador y estrellitas tras el ratón
+$("#visits").textContent = String(countVisit()).padStart(6, "0");
+startSparkles();
+
 // versión al pie: la de package.json y el commit compilado, que enlaza a GitHub
 const version = $<HTMLAnchorElement>("#version");
 version.textContent = `v${__APP_VERSION__}${__APP_COMMIT__ ? ` · ${__APP_COMMIT__}` : ""}`;
@@ -129,6 +136,8 @@ const cutChk = $<HTMLInputElement>("#cutlines");
 cutChk.onchange = () => { state.cutlines = cutChk.checked; changed(); };
 const frameChk = $<HTMLInputElement>("#frame");
 frameChk.onchange = () => { state.frame = frameChk.checked; changed(); };
+const styleRadios = [...document.querySelectorAll<HTMLInputElement>('input[name="card-style"]')];
+styleRadios.forEach((r) => { r.onchange = () => { state.cardStyle = r.value as CardStyle; changed(); }; });
 const imagesChk = $<HTMLInputElement>("#images");
 imagesChk.onchange = () => { state.images = imagesChk.checked; changed(); };
 const hideChk = $<HTMLInputElement>("#hide-owned");
@@ -176,6 +185,7 @@ function syncControls() {
   cutChk.checked = state.cutlines;
   frameChk.checked = state.frame;
   imagesChk.checked = state.images;
+  styleRadios.forEach((r) => (r.checked = r.value === state.cardStyle));
   hideChk.checked = state.hideOwned;
   regionRadios.forEach((r) => (r.checked = r.value === state.region));
   onlyChks.forEach((c) => (c.checked = state.only.includes(c.value as Supertype)));
@@ -371,7 +381,7 @@ async function update() {
     if (my !== token || !sel) return;
     // sin imágenes no se descarga nada: las cartas usan sus dibujos vectoriales
     if (!state.images) sel.items.forEach((it) => delete it.job);
-    current = { sel, visible: [], opts: { bw: state.bw, lang: state.lang, frame: state.frame } };
+    current = { sel, visible: [], opts: { bw: state.bw, lang: state.lang, frame: state.frame, style: state.cardStyle } };
     rerender();
   } catch (e) {
     if (my === token) { setStatus(String(e), true); setProgress(null); }
@@ -428,6 +438,8 @@ function rerender() {
   for (let p = 0; p < pages; p++) {
     const cards = visible.slice(p * PER_PAGE, (p + 1) * PER_PAGE).map((it, k) => placed(it, p * PER_PAGE + k));
     html += `<div class="sheet" data-page="${p}" style="--n:${Math.min(p, 8)}">`
+      + `<div class="retro-only sheet-bar"><span>📄 ${esc(sel.file)}_${String(p + 1).padStart(2, "0")}.pdf</span>`
+      + `<span class="wbtns" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div>`
       + pageSvg(g, cards, opts, { cutlines: state.cutlines, preview: true })
       + `<span class="label">${t("sheetLabel", { p: p + 1, n: pages })}</span></div>`;
   }
