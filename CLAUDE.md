@@ -240,7 +240,8 @@ Claude in Chrome.
 
 ### Estructura
 - `src/config.ts`: mapas portados del CLI original (`TYPE_COLORS`, `ITEM_KEYWORDS`…) y tamaños en mm.
-- `src/data/`: `fetch.ts` (descargas con **Cache Storage**),
+- `src/data/`: `fetch.ts` (descargas con **Cache Storage**, opcional: si `caches.open()` o `put()`
+  fallan, como en algunas ventanas privadas o perfiles nuevos, descarga sin guardar),
   `sources.ts` (URLs), `tcg.ts` (ediciones, cartas, selección y traducciones), `species.ts`
   (Pokédex) y `variants.ts` (master set).
 - `src/render/`: `svg.ts` (primitivas, portadas de `pill`, `title`, `rarity_mark`…, en mm con el
