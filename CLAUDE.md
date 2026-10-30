@@ -180,7 +180,7 @@ reproduce el diseño del CLI.
   `__APP_VERSION__` (de `package.json`) y `__APP_COMMIT__` (de `CF_PAGES_COMMIT_SHA` en Cloudflare
   Pages o de `git`; vacío en Docker y en el contenedor de desarrollo, que no tienen git). Si hay
   commit, enlaza a él en GitHub. Al publicar algo notable, subir la versión de `package.json`
-  (y `package-lock.json`). La 1.0.0 es la del lanzamiento.
+  (y `package-lock.json`). La 1.0.0 fue la del lanzamiento; la 1.1.0, la del tema retro y el estilo de carta retro.
 - **Móvil** (≤ 820 px): el panel va encima de la vista previa con la cabecera compacta, y el
   pie del panel (botón del PDF y estado) queda fijo abajo para descargar sin volver a subir; el
   donativo de esa barra se oculta porque está al pie. Los campos usan 16 px para que iOS no
