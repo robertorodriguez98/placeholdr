@@ -56,7 +56,11 @@ export function cutlines(g: PageGeometry, o: RenderOpts): string {
   }
   const marks = `<path d="${d}" stroke="${col}" stroke-width="${f(0.5 * PT)}" fill="none"/>`;
   if (o.frame) return marks + `<path d="${gridPath(g, true)}" stroke="#fff" stroke-width="${f(0.6 * PT)}" fill="none"/>`;
-  return marks + `<path d="${gridPath(g, false)}" stroke="rgb(70,70,70)" stroke-width="${f(0.6 * PT)}" `
+  // En el estilo retro, el borde de cada ventana (negro en B/N) y el de la de al lado forman una
+  // banda oscura que tapaba la discontinua: debajo va una línea blanca para que se vean los huecos.
+  const under = o.style === "retro"
+    ? `<path d="${gridPath(g, false)}" stroke="#fff" stroke-width="${f(0.6 * PT)}" fill="none"/>` : "";
+  return marks + under + `<path d="${gridPath(g, false)}" stroke="rgb(70,70,70)" stroke-width="${f(0.6 * PT)}" `
     + `stroke-dasharray="${f(3 * PT)} ${f(2 * PT)}" fill="none"/>`;
 }
 
