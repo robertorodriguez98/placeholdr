@@ -87,8 +87,11 @@ reproduce el diseño del CLI.
   que lleva a los issues de GitHub. Lo que solo existe en ese tema lleva la clase `.retro-only`.
   **Logo:** pixel art de 16×16 (en `index.html`, como favicon en data URI y dentro del
   medallón): una hoja de binder 3×3 con una carta de color con brillo en cada bolsillo y el del
-  centro vacío, con el damero gris y blanco de "transparente" (el placeholder). En el panel gira
-  sobre un anillo arcoíris que da vueltas, con un destello que parpadea. Se generó con un script
+  centro vacío, con el damero gris y blanco de "transparente" (el placeholder). En el panel es
+  un binder de dos caras que gira en 3D (`.logo3d`, con `backface-visibility`): delante esa hoja y
+  detrás la tapa negra con lomo, tres anillas y portaetiquetas (`.logo-back`, que el diseño
+  anterior oculta). Un destello parpadea en la esquina. Hubo un anillo arcoíris detrás y el
+  usuario lo quitó porque quedaba raro. Se generó con un script
   de Python desde una rejilla; para cambiarlo, editar los `<rect>` o regenerarlo. El logo
   anterior (binder naranja) solo queda en el historial de git.
   Cada hoja de la vista previa es una ventana (`.sheet-bar` con `binder_<set>_NN.pdf`, la hoja en
