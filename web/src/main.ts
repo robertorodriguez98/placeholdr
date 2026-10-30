@@ -521,6 +521,23 @@ $<HTMLButtonElement>("#export-csv").onclick = () => {
 };
 
 // ---------------------------------------------------------------- PDF
+/**
+ * Si se publica una versión nueva con la web abierta, los ficheros con hash de la anterior (como
+ * el del PDF, que se carga al pulsar el botón) ya no existen y el import falla. Entonces se avisa
+ * y se recarga la página, una sola vez por sesión para no entrar en un bucle.
+ */
+function reloadIfOutdated(e: unknown): boolean {
+  const msg = String(e);
+  if (!/dynamically imported module|Importing a module script failed|error loading dynamically/i.test(msg)) return false;
+  try {
+    if (sessionStorage.getItem("placeholdr:reloaded")) return false;
+    sessionStorage.setItem("placeholdr:reloaded", "1");
+  } catch { return false; }
+  setStatus(t("update.reload"));
+  setTimeout(() => location.reload(), 1500);
+  return true;
+}
+
 pdfBtn.onclick = async () => {
   if (!current) return;
   const my = token;
@@ -538,6 +555,7 @@ pdfBtn.onclick = async () => {
     })));
     if (my !== token) return;
     const { buildPdf } = await import("./pdf"); // svg2pdf solo se carga al exportar
+    try { sessionStorage.removeItem("placeholdr:reloaded"); } catch { /* modo privado */ }
     const blob = await buildPdf({
       cards: visible.map(placed),
       blobOf,
@@ -556,6 +574,7 @@ pdfBtn.onclick = async () => {
     setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
     setStatus(t("pdf.done", { file: a.download, mb: (blob.size / 1e6).toFixed(1) }));
   } catch (e) {
+    if (reloadIfOutdated(e)) return;
     setStatus(t("pdf.error", { e: String(e) }), true);
     console.error(e);
   } finally {
