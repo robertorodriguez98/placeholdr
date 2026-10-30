@@ -74,6 +74,18 @@ reproduce el diseño del CLI.
   oscura, con una barra naranja fija y las hojas de dos en dos, como un binder abierto. Los
   colores están en variables CSS, todos sacados del diseño de las cartas (`--orange`,
   `--stripe`, `--green` del Estadio, `--gold` de las rarezas).
+- **Tema retro** (botón ★ de la banda; × para volver): la web de 2003 al estilo
+  GeoCities/Neocities. El usuario lo pidió en "caos total" y como tema opcional; el de por
+  defecto sigue siendo la carta de Partidario. `src/theme.ts` pone `data-theme="retro"|"card"` en
+  `<html>` (guardado en `placeholdr:theme`), cuenta las visitas de este navegador (una por sesión,
+  `placeholdr:visits`: es un contador real, no uno inventado) y pinta estrellitas tras el ratón
+  (no en táctil ni con movimiento reducido). `src/retro.css` lo cuelga todo de
+  `html[data-theme="retro"]`: ventanas de Windows 98 con bisel (`--raised`/`--sunken`), fondo de
+  estrellas en SVG en mosaico, títulos arcoíris, bienvenida parpadeante, marquesina, botones de
+  88×31 (hechos con CSS, sin imágenes de terceros), "under construction" y un libro de visitas
+  que lleva a los issues de GitHub. Lo que solo existe en ese tema lleva la clase `.retro-only`.
+  Las cartas y el PDF no cambian. Solo usa fuentes del sistema (Tahoma, Comic Sans, Times), así
+  que no añade nada a la CSP ni a la privacidad.
 - **Cartas juntas:** van pegadas, sin hueco, así cada corte separa dos a la vez (8 cortes por
   hoja en vez de 12) y no quedan tiras sueltas. Es el único modo: el hueco de 2 mm del CLI se
   quitó porque no aportaba nada (el margen de error ya lo da la banda negra de los bordes). Las

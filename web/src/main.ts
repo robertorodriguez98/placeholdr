@@ -1,5 +1,7 @@
 import "./migrate"; // la primera: pasa los datos guardados con el nombre antiguo
+import { countVisit, currentTheme, setTheme, startSparkles } from "./theme"; // antes de pintar
 import "./style.css";
+import "./retro.css";
 import { LANGS, TYPE_COLORS, TYPE_ES, type Lang, type Paper } from "./config";
 import {
   groupBySeries, loadSetCards, loadSets, loadTranslations, normNum, selectCards,
@@ -95,6 +97,7 @@ uiLangBox.querySelectorAll<HTMLButtonElement>("button").forEach((b) => {
     if (b.dataset.lang === uiLang) return;
     setUiLang(b.dataset.lang as UiLang);
     uiLangBox.querySelectorAll("button").forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+    syncTheme();
     changed();
   };
 });
@@ -106,6 +109,18 @@ const legal = $<HTMLDialogElement>("#legal");
 $<HTMLButtonElement>("#guide-open").onclick = () => guide.showModal();
 $<HTMLButtonElement>("#legal-open").onclick = () => legal.showModal();
 for (const d of [guide, legal]) d.addEventListener("click", (e) => { if (e.target === d) d.close(); });
+// tema: el botón ★ de la banda cambia entre la carta de Partidario y la web retro
+const themeBtn = $<HTMLButtonElement>("#theme-toggle");
+function syncTheme() {
+  const retro = currentTheme() === "retro";
+  themeBtn.textContent = retro ? "×" : "★";
+  themeBtn.title = t(retro ? "theme.toCard" : "theme.toRetro");
+  themeBtn.setAttribute("aria-label", themeBtn.title);
+}
+themeBtn.onclick = () => { setTheme(currentTheme() === "retro" ? "card" : "retro"); syncTheme(); };
+$("#visits").textContent = String(countVisit()).padStart(6, "0");
+startSparkles();
+
 // versión al pie: la de package.json y el commit compilado, que enlaza a GitHub
 const version = $<HTMLAnchorElement>("#version");
 version.textContent = `v${__APP_VERSION__}${__APP_COMMIT__ ? ` · ${__APP_COMMIT__}` : ""}`;
@@ -552,4 +567,5 @@ pdfBtn.onclick = async () => {
   }
 };
 
+syncTheme();
 changed(); // carga las ediciones del catálogo elegido (o la Pokédex) y dibuja
