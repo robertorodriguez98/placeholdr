@@ -1,5 +1,5 @@
 // Expansiones y cartas (PokemonTCG/pokemon-tcg-data) + nombres traducidos (API de TCGdex).
-import { fetchJson } from "./fetch";
+import { DAY, fetchJson } from "./fetch";
 import { TCG_SETS, TCGDEX_API, tcgCards } from "./sources";
 import { TYPE_WORD_ES } from "../config";
 
@@ -32,8 +32,10 @@ export interface SetCard extends TcgCard {
   variant?: string; // copia extra del master set ("REVERSE"...)
 }
 
-export async function loadSets(refresh = false): Promise<TcgSet[]> {
-  const sets = await fetchJson<TcgSet[]>(TCG_SETS, refresh);
+// Los listados caducan al día: así los sets nuevos (y las correcciones de las fuentes en sus
+// primeras semanas) llegan solos, también a quien ya tenía la web guardada en la caché.
+export async function loadSets(): Promise<TcgSet[]> {
+  const sets = await fetchJson<TcgSet[]>(TCG_SETS, { maxAge: DAY });
   // printedTotal falta en algunas colecciones especiales
   return sets.map((s) => ({ ...s, printedTotal: s.printedTotal ?? s.total }));
 }
@@ -60,8 +62,8 @@ export function byNumber(a: TcgCard, b: TcgCard): number {
   return pa.localeCompare(pb) || na - nb;
 }
 
-export async function loadSetCards(setId: string, refresh = false): Promise<TcgCard[]> {
-  const cards = await fetchJson<TcgCard[]>(tcgCards(setId), refresh);
+export async function loadSetCards(setId: string): Promise<TcgCard[]> {
+  const cards = await fetchJson<TcgCard[]>(tcgCards(setId), { maxAge: DAY });
   return cards.sort(byNumber);
 }
 
@@ -78,7 +80,7 @@ export interface TcgdexSet {
 
 /** Id de la expansión en TCGdex, casada por nombre inglés ("Pitch Black": me5 -> me05). */
 export async function tcgdexSetId(set: TcgSet): Promise<string | null> {
-  const list = await fetchJson<TcgdexSetBrief[]>(`${TCGDEX_API}/en/sets`);
+  const list = await fetchJson<TcgdexSetBrief[]>(`${TCGDEX_API}/en/sets`, { maxAge: DAY });
   const match = list.find((s) => s.name.toLowerCase() === set.name.toLowerCase());
   if (!match) console.warn(`TCGdex no tiene '${set.name}': nombres en inglés y sin variantes`);
   return match?.id ?? null;
@@ -95,7 +97,7 @@ export async function loadTranslations(
   if (lang === "en") return null;
   const id = await tcgdexSetId(set);
   if (!id) return null;
-  const tr = await fetchJson<TcgdexSet>(`${TCGDEX_API}/${lang}/sets/${id}`);
+  const tr = await fetchJson<TcgdexSet>(`${TCGDEX_API}/${lang}/sets/${id}`, { maxAge: DAY });
   const names = new Map<string, string>();
   for (const c of tr.cards) {
     let name = c.name;

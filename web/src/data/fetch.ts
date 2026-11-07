@@ -2,6 +2,22 @@
 // Lo descargado una vez se reutiliza entre sesiones.
 
 const CACHE = "placeholdr-v1";
+// Cuándo se guardó cada respuesta (las cabeceras propias de las fuentes, como Date, no se pueden
+// leer desde otro dominio por CORS).
+const SAVED_AT = "x-placeholdr-saved";
+
+/** Un día, en ms: lo que duran los listados que cambian cuando sale un set nuevo. */
+export const DAY = 24 * 60 * 60 * 1000;
+
+export interface FetchOpts {
+  /** Descargar aunque esté en la caché. */
+  refresh?: boolean;
+  /**
+   * Edad máxima (ms) de la copia guardada. Pasado ese tiempo se vuelve a descargar, y si la red
+   * falla se usa la copia vieja. Sin ella, lo guardado no caduca (imágenes, CSV, fichas).
+   */
+  maxAge?: number;
+}
 
 // La caché es opcional: en algunas ventanas privadas, perfiles nuevos o navegadores con el
 // almacenamiento bloqueado, caches.open() o put() fallan. Entonces se descarga sin guardar,
@@ -9,16 +25,29 @@ const CACHE = "placeholdr-v1";
 let store: Promise<Cache | null> | null = null;
 const openStore = () => (store ??= ("caches" in self ? caches.open(CACHE) : Promise.resolve(null)).catch(() => null));
 
-async function cached(url: string, refresh = false): Promise<Response> {
+async function cached(url: string, { refresh = false, maxAge }: FetchOpts = {}): Promise<Response> {
   const cache = await openStore();
-  if (cache && !refresh) {
-    const hit = await cache.match(url).catch(() => undefined);
-    if (hit) return hit;
+  const hit = cache && !refresh ? await cache.match(url).catch(() => undefined) : undefined;
+  if (hit) {
+    // las copias de antes de guardar la fecha cuentan como viejas
+    const age = Date.now() - Number(hit.headers.get(SAVED_AT) ?? 0);
+    if (maxAge === undefined || age <= maxAge) return hit;
   }
-  const r = await fetch(url);
-  if (!r.ok) throw new HttpError(url, r.status);
-  if (cache) await cache.put(url, r.clone()).catch(() => { /* sin sitio o bloqueada: no pasa nada */ });
-  return r;
+  let r: Response;
+  try {
+    r = await fetch(url);
+    if (!r.ok) throw new HttpError(url, r.status);
+  } catch (e) {
+    if (hit) return hit; // sin red o fuente caída: mejor la copia vieja que nada
+    throw e;
+  }
+  if (!cache) return r;
+  const headers = new Headers(r.headers);
+  headers.set(SAVED_AT, String(Date.now()));
+  const body = await r.blob();
+  await cache.put(url, new Response(body, { status: r.status, headers }))
+    .catch(() => { /* sin sitio o bloqueada: no pasa nada */ });
+  return new Response(body, { status: r.status, headers });
 }
 
 export class HttpError extends Error {
@@ -27,16 +56,16 @@ export class HttpError extends Error {
   }
 }
 
-export async function fetchJson<T>(url: string, refresh = false): Promise<T> {
-  return (await cached(url, refresh)).json();
+export async function fetchJson<T>(url: string, opts?: FetchOpts): Promise<T> {
+  return (await cached(url, opts)).json();
 }
 
-export async function fetchText(url: string, refresh = false): Promise<string> {
-  return (await cached(url, refresh)).text();
+export async function fetchText(url: string, opts?: FetchOpts): Promise<string> {
+  return (await cached(url, opts)).text();
 }
 
-export async function fetchBlob(url: string, refresh = false): Promise<Blob> {
-  return (await cached(url, refresh)).blob();
+export async function fetchBlob(url: string, opts?: FetchOpts): Promise<Blob> {
+  return (await cached(url, opts)).blob();
 }
 
 /** Borra toda la caché. */
