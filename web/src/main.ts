@@ -312,7 +312,9 @@ async function setSelection(my: number): Promise<Selection | null> {
     };
   });
   const coll = t(`coll.name.${state.collection}`);
-  const name = tr?.setName ?? set.name;
+  // la cabecera es interfaz: el nombre traducido (el de las cartas) solo si coincide con el idioma
+  // de la interfaz; si no, el del selector (inglés)
+  const name = tr && state.lang === uiLang ? tr.setName : set.name;
   return {
     kicker: `${ja ? "JP · " + set.tcgdexId : set.ptcgoCode ?? set.id.toUpperCase()} · /${String(set.printedTotal).padStart(3, "0")}`,
     name: `${name} · ${coll}`,
