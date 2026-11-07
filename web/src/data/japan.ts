@@ -4,7 +4,7 @@
 // El listado de un set solo trae el nombre de cada carta, así que se pide la ficha de cada
 // una (8 a la vez y con caché, como las variantes del master set). Las fichas se convierten
 // al formato de pokemon-tcg-data (TcgCard) para que el resto del código no distinga regiones.
-import { fetchJson, fetchText } from "./fetch";
+import { DAY, fetchJson, fetchText } from "./fetch";
 import { NAMES_CSV, TCGDEX_API } from "./sources";
 import { parseCsv } from "./species";
 import { byNumber, normNum, type TcgCard, type TcgSet, type TcgdexSet } from "./tcg";
@@ -35,8 +35,8 @@ function newestFirst(a: { id: string }, b: { id: string }): number {
 
 /** Todos los sets japoneses, agrupables por serie (la fecha es la de la serie: TCGdex no da la del set). */
 export async function loadJaSets(): Promise<TcgSet[]> {
-  const series = await fetchJson<{ id: string }[]>(api("series"));
-  const full = await Promise.all(series.map((s) => fetchJson<Serie>(api(`series/${s.id}`))));
+  const series = await fetchJson<{ id: string }[]>(api("series"), { maxAge: DAY });
+  const full = await Promise.all(series.map((s) => fetchJson<Serie>(api(`series/${s.id}`), { maxAge: DAY })));
   return full.flatMap((se) =>
     [...se.sets]
       .sort(newestFirst)
@@ -122,7 +122,7 @@ export async function loadJaCards(
   set: TcgSet, onProgress?: (done: number, total: number) => void,
 ): Promise<{ cards: TcgCard[]; variants: Map<string, Variants> }> {
   const [{ cards: brief }, species] = await Promise.all([
-    fetchJson<TcgdexSet>(api(`sets/${set.tcgdexId}`)),
+    fetchJson<TcgdexSet>(api(`sets/${set.tcgdexId}`), { maxAge: DAY }),
     speciesByName(),
   ]);
   const list = brief ?? [];

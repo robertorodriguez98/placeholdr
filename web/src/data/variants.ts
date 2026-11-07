@@ -1,7 +1,7 @@
 // Variantes de cada carta para el master set (API de TCGdex, una ficha por carta).
 // TCGdex distingue normal, holo, reverse y primera edición; no modela los patrones
 // especiales de algunas expansiones (Poké Ball, Master Ball...).
-import { fetchJson } from "./fetch";
+import { DAY, fetchJson } from "./fetch";
 import { TCGDEX_API } from "./sources";
 import { normNum, tcgdexSetId, type TcgSet, type TcgdexSet } from "./tcg";
 
@@ -14,7 +14,7 @@ export async function loadVariants(
   const out = new Map<string, Variants>();
   const id = await tcgdexSetId(set);
   if (!id) return out;
-  const { cards } = await fetchJson<TcgdexSet>(`${TCGDEX_API}/en/sets/${id}`);
+  const { cards } = await fetchJson<TcgdexSet>(`${TCGDEX_API}/en/sets/${id}`, { maxAge: DAY });
   let i = 0, finished = 0;
   const worker = async () => {
     while (i < cards.length) {

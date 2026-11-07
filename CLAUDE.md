@@ -194,7 +194,10 @@ reproduce el diseño del CLI.
   `__APP_VERSION__` (de `package.json`) y `__APP_COMMIT__` (de `CF_PAGES_COMMIT_SHA` en Cloudflare
   Pages o de `git`; vacío en Docker y en el contenedor de desarrollo, que no tienen git). Si hay
   commit, enlaza a él en GitHub. Al publicar algo notable, subir la versión de `package.json`
-  (y `package-lock.json`). La 1.0.0 fue la del lanzamiento; la 1.1.0, la del tema retro y el estilo de carta retro.
+  (y `package-lock.json`). La 1.0.0 fue la del lanzamiento; la 1.1.0, la del tema retro y el estilo de carta retro; la
+  1.2.0, la de la caducidad de los listados (para Delta Reign) y los arreglos de móvil y del corte
+  en B/N. **Sets nuevos:** no hace falta tocar el código; aparecen solos en cuanto los publica
+  pokemon-tcg-data (suele ser el día de salida, a veces unos días después) o, los japoneses, TCGdex.
 - **Móvil** (≤ 820 px): el panel va encima de la vista previa con la cabecera compacta, y el
   pie del panel (botón del PDF y estado) queda fijo abajo para descargar sin volver a subir; el
   donativo de esa barra se oculta porque está al pie. Los campos usan 16 px para que iOS no
@@ -262,7 +265,11 @@ Claude in Chrome.
 ### Estructura
 - `src/config.ts`: mapas portados del CLI original (`TYPE_COLORS`, `ITEM_KEYWORDS`…) y tamaños en mm.
 - `src/data/`: `fetch.ts` (descargas con **Cache Storage**, opcional: si `caches.open()` o `put()`
-  fallan, como en algunas ventanas privadas o perfiles nuevos, descarga sin guardar),
+  fallan, como en algunas ventanas privadas o perfiles nuevos, descarga sin guardar; cada copia
+  lleva la fecha en la cabecera `x-placeholdr-saved`, y los listados que cambian al salir un set
+  nuevo se piden con `{ maxAge: DAY }`: el de sets, las series japonesas, `/en/sets` de TCGdex y el
+  contenido de cada set. Antes no caducaban nunca y quien ya había entrado no veía los sets nuevos.
+  Sin red se usa la copia vieja),
   `sources.ts` (URLs), `tcg.ts` (ediciones, cartas, selección y traducciones), `species.ts`
   (Pokédex) y `variants.ts` (master set).
 - `src/render/`: `svg.ts` (primitivas, portadas de `pill`, `title`, `rarity_mark`…, en mm con el
